@@ -1,0 +1,14 @@
+﻿Build started 10/14/2016 10:14:12 AM.
+     1>Project "Z:\CSC322\MyASMHw\Prog1\Project.vcxproj" on node 2 (Build target(s)).
+     1>_MASM:
+         Assembling prog1.asm...
+         cmd.exe /C "C:\Users\schnider_ms\AppData\Local\Temp\tmp974fe0fa20e3436e887fd46af8d7f2d8.cmd"
+         ml.exe /c /nologo /Sg /WX /Zi /Fo"Debug\prog1.obj" /Fl"Project.lst" /I "c:\Irvine" /W3 /errorReport:prompt  /Taprog1.asm
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Z:\CSC322\MyASMHw\Prog1\Debug\Project.exe" /NOLOGO /LIBPATH:c:\Irvine user32.lib irvine32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"Z:\CSC322\MyASMHw\Prog1\Debug\Project.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE:NO /IMPLIB:"Z:\CSC322\MyASMHw\Prog1\Debug\Project.lib" /MACHINE:X86 /SAFESEH:NO Debug\prog1.obj
+         Project.vcxproj -> Z:\CSC322\MyASMHw\Prog1\Debug\Project.exe
+     1>Done Building Project "Z:\CSC322\MyASMHw\Prog1\Project.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.89

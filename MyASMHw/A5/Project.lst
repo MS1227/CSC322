@@ -1,0 +1,113 @@
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    09/30/16 12:49:23
+HW5.asm							     Page 1 - 1
+
+
+				; HW5.asm
+				; Matt Schnider
+
+				.386
+				.model flat,stdcall
+				.stack 4096
+				ExitProcess proto,dwExitCode:dword
+
+ 00000000			.data
+ 00000000 00000000		sum dword 0
+
+ 00000000			.code
+ 00000000			main proc
+				;problem 1
+ 00000000  66| B8 0246			mov ax, 0246h
+ 00000004  66| BB DCAB		     mov bx, 0DCABh
+ 00000008  66| 03 C3		     add ax,bx
+
+				;problem 2
+ 0000000B  66| B8 ABCD		     mov ax, 0ABCDh
+ 0000000F  66| BB DCBA		     mov bx, 0DCBAh
+ 00000013  66| 03 C3		     add ax,bx
+
+				;problem 3    
+ 00000016  66| B8 FFFF		     mov ax, 0FFFFh
+ 0000001A  66| BB 0001		     mov bx, 0001h
+ 0000001E  66| 03 C3		     add ax,bx
+
+				;problem 4
+ 00000021  66| B8 F0F0		     mov ax, 0F0F0h
+ 00000025  66| BB F0F0		     mov bx, 0F0F0h
+ 00000029  66| 03 C3		     add ax,bx
+				   
+				;problem 5     
+ 0000002C  66| B8 2468		     mov ax, 2468h
+ 00000030  66| BB 2468		     mov bx, 2468h
+ 00000034  66| 03 C3		     add ax,bx
+
+				;problem 6
+ 00000037  66| B8 7FFF		     mov ax, 7FFFh
+ 0000003B  66| BB 0001		     mov bx, 0001h
+ 0000003F  66| 03 C3		     add ax,bx
+				 
+				;problem 7     
+ 00000042  66| B8 ABCD		     mov ax, 0ABCDh
+ 00000046  66| BB FEDC		     mov bx, 0FEDCh
+ 0000004A  66| 03 C3		     add ax,bx
+				    
+				;problem 8     
+ 0000004D  66| B8 0B0B		     mov ax, 0B0Bh
+ 00000051  66| BB A11E		     mov bx, 0A11Eh
+ 00000055  66| 03 C3		     add ax,bx
+
+				;problem 9     
+ 00000058  66| B8 7FFF		     mov ax, 7FFFh
+ 0000005C  66| BB 7FFF		     mov bx, 7FFFh
+ 00000060  66| 03 C3		     add ax,bx
+				     
+				;problem 10
+ 00000063  66| B8 8000		     mov ax, 8000h
+ 00000067  66| BB 8000		     mov bx, 8000h
+ 0000006B  66| 03 C3		     add ax,bx
+
+					invoke ExitProcess,0
+ 0000006E  6A 00	   *	    push   +000000000h
+ 00000070  E8 00000000 E   *	    call   ExitProcess
+ 00000075			main endp
+				end main
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    09/30/16 12:49:23
+HW5.asm							     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000004 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000075 DWord	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000075 Public STDCALL
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+sum  . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
+
+	   0 Warnings
+	   0 Errors

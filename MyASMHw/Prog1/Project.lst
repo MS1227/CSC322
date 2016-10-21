@@ -1,0 +1,137 @@
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    10/14/16 10:14:12
+prog1.asm						     Page 1 - 1
+
+
+				; Matt Schnider
+				; CSC 322 Fall 2016
+				; Program 1
+				; Due 10/14/2016
+				; Program to sum up the values of arrays of different data types. The sum of each array is then added together and stored
+				; in the grandTotal var.
+
+				.386
+				.model flat,stdcall
+				.stack 4096
+				ExitProcess PROTO, dwExitCode:dword
+
+ 00000000			.data
+ 00000000 FF FE FD FC FB	bArray 		SBYTE 	-1,-2,-3,-4,-5
+ 00000005 000A 000B 000C	wArray 		SWORD 	0ah,0bh,0ch,0dh,0eh
+	   000D 000E
+ 0000000F FFFFFFF6		dArray		SDWORD 	-10,20,-30,40,-50
+	   00000014
+	   FFFFFFE2
+	   00000028
+	   FFFFFFCE
+ 00000023 00			bArraySum 	SBYTE 	0
+ 00000024 0000			wArraySum	SWORD	0
+ 00000026 00000000		dArraySum	SDWORD	0
+ 0000002A 00000000		grandTotal	SDWORD	0
+
+ 00000000			.code
+ 00000000			main proc
+					;Sum bArray
+ 00000000  A0 00000000 R		mov AL,bArray 		;Moves first integer, -1,  in bArray into the 8-bit AL reg,preserving the sign bit.
+ 00000005  8A 25 00000001 R		mov AH,bArray+1		;Moves -2 in byte into the 8-bit AH reg, preserving the sign bit.
+ 0000000B  02 C4			add AL,AH			     ;Adds the value in the AH register to the AL reg. result stored in AL.
+ 0000000D  8A 25 00000002 R		mov AH,bArray+2		;Moves the byte representation of -3 into the AH reg.
+ 00000013  02 C4			add AL,AH			     ;Adds the value stored in AH reg to AL reg.
+ 00000015  8A 25 00000003 R		mov AH,bArray+3		;moves byte rep of -4 into AH reg.
+ 0000001B  02 C4			add AL,AH			     ;same as above.
+ 0000001D  8A 25 00000004 R		mov AH, bArray+4
+ 00000023  02 C4			add AL,AH
+ 00000025  A2 00000023 R		mov bArraySum,AL		;Moves the sum of bArray vals into memory.
+
+					;Sum wArray
+ 0000002A  66| A1			mov AX,wArray		;Moves the first element of the wArray into the AX 16-bit reg, preserving the sign bit.
+	   00000005 R
+ 00000030  66| 8B 1D			mov BX,wArray+2	     ;Indexes the wArray 2 bytes further in to retrieve the 0bh val and moves it into the BX reg.
+	   00000007 R
+ 00000037  66| 03 C3			add AX,BX			     ;Adds the value of BX to the AX reg.
+ 0000003A  66| 8B 1D			mov BX,wArray+4	     ;moves 0ch into BX reg.
+	   00000009 R
+ 00000041  66| 03 C3			add AX,BX			     ;same as above.
+ 00000044  66| 8B 1D			mov BX,wArray+6
+	   0000000B R
+ 0000004B  66| 03 C3			add AX,BX
+ 0000004E  66| 8B 1D			mov BX,wArray+8
+	   0000000D R
+ 00000055  66| 03 C3			add AX,BX
+ 00000058  66| A3			mov wArraySum,AX		;Moves the value of the above summation into the wArraySum variable in memory.
+	   00000024 R
+
+					;Sum dArray
+ 0000005E  A1 0000000F R		mov EAX,dArray		;moves the first element of dArray int the EAX 32-bit register, preserving the sign bit.
+ 00000063  8B 1D 00000013 R		mov EBX,dArray+4		;Indexes the dArray 4bytes further in to retrieve the 20 val and moves it into the 32-bit EBX reg.
+ 00000069  03 C3			add EAX,EBX			;Adds teh value of the EBX reg to the EAX reg.
+ 0000006B  8B 1D 00000017 R		mov EBX,dArray+8		;same as above.
+ 00000071  03 C3			add EAX,EBX
+ 00000073  8B 1D 0000001B R		mov EBX,dArray+12
+ 00000079  03 C3			add EAX,EBX
+ 0000007B  8B 1D 0000001F R		mov EBX,dArray+16
+ 00000081  03 C3			add EAX,EBX
+ 00000083  A3 00000026 R		mov dArraySum,EAX		;Moves the value of the above summation into the dArraySum variable in memory.
+
+					;grandTotal
+ 00000088  0F BE 05			movsx EAX,bArraySum		;Moves into the EAX 32-bit register the value stored at bArraySum. Sign bit is preserved.
+	   00000023 R
+ 0000008F  0F BF 1D			movsx EBX,wArraySum		;Moves into the EBX 32-bit register the value stored at wArraySum. Sign bit is preserved.
+	   00000024 R
+ 00000096  03 C3			add EAX,EBX			;Adds the value in the EBX reg to the value in the EAX reg.
+ 00000098  03 05 00000026 R		add EAX,dArraySum			;adds the value stored in the EBX to the EAX.
+ 0000009E  A3 0000002A R		mov grandTotal, EAX		;Moves the value stored in the EAX register to the grandTotal var in memory.
+
+
+
+					Invoke ExitProcess,0
+ 000000A3  6A 00	   *	    push   +000000000h
+ 000000A5  E8 00000000 E   *	    call   ExitProcess
+ 000000AA			main endp
+				end main
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    10/14/16 10:14:12
+prog1.asm						     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000002E DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000AA DWord	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000000AA Public STDCALL
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+bArraySum  . . . . . . . . . . .	Byte	 00000023 _DATA	
+bArray . . . . . . . . . . . . .	Byte	 00000000 _DATA	
+dArraySum  . . . . . . . . . . .	DWord	 00000026 _DATA	
+dArray . . . . . . . . . . . . .	DWord	 0000000F _DATA	
+grandTotal . . . . . . . . . . .	DWord	 0000002A _DATA	
+wArraySum  . . . . . . . . . . .	Word	 00000024 _DATA	
+wArray . . . . . . . . . . . . .	Word	 00000005 _DATA	
+
+	   0 Warnings
+	   0 Errors
