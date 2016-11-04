@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/02/16 12:44:13
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/04/16 12:43:53
 p4play.asm						     Page 1 - 1
 
 
@@ -37,6 +37,12 @@ p4play.asm						     Page 1 - 1
 	   ]
  00000028 00000000		strSize             DWORD     ?     ;;;; String length.
 
+ 0000002C  00000005 [		myData                  BYTE 5 DUP(15 DUP(' '), 0);
+	    0000000F [
+	     20
+	    ] 00
+	   ]
+
  00000000			.code
  00000000			main PROC
  00000000  E8 00000000 E	     call clrscr
@@ -51,14 +57,33 @@ p4play.asm						     Page 1 - 1
  00000022  E8 00000000 E	     call ReadString
  00000027  A3 00000028 R	     mov strSize,eax
 
+				     ;;;; CALL OUR STR COPY PROC
+				     ;;;;; Params eax = length, esi points to src string, edi point to where we want to copy the string.
+ 0000002C  BE 00000019 R	     mov esi, OFFSET inputBuff
+ 00000031  BF 0000002C R	     mov edi, OFFSET myData
+ 00000036  E8 00000007		     call strCopy
+
 				     exit
- 0000002C  6A 00	   *	    push   +000000000h
- 0000002E  E8 00000000 E   *	    call   ExitProcess
+ 0000003B  6A 00	   *	    push   +000000000h
+ 0000003D  E8 00000000 E   *	    call   ExitProcess
 
- 00000033			main ENDP
+ 00000042			main ENDP
 
+ 00000042			strCopy PROC
+ 00000042  60			        pushAD
+ 00000043  8B C8		        mov ecx, eax ;;; copy str length into loop reg
+ 00000045			TOP:
+ 00000045  8A 3E		        mov bh,[esi]
+ 00000047  88 3F		        mov [edi],bh
+ 00000049  46			        inc esi
+ 0000004A  47			        inc edi
+
+ 0000004B  E2 F8		        loop TOP
+ 0000004D  61			        popAD
+ 0000004E  C3			        ret
+ 0000004F			strCopy ENDP
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/02/16 12:44:13
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/04/16 12:43:53
 p4play.asm						     Symbols 2 - 1
 
 
@@ -152,8 +177,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000002C Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000033 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000007C Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000004F Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -260,9 +285,11 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000033 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000042 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+strCopy  . . . . . . . . . . . .	P Near	 00000042 _TEXT	Length= 0000000D Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 00000045 _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -495,6 +522,7 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 msg  . . . . . . . . . . . . . .	Byte	 00000000 _DATA	
+myData . . . . . . . . . . . . .	Byte	 0000002C _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 strSize  . . . . . . . . . . . .	DWord	 00000028 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
