@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    10/19/16 12:43:38
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    10/21/16 12:48:27
 CH5.asm							     Page 1 - 1
 
 
@@ -27,72 +27,37 @@ CH5.asm							     Page 1 - 1
 			      C 
 
  00000000			.data
- = 00000004			COUNT = 4
- = 00000071			BlueTextOnGray = blue + (lightGray * 16)
- = 00000007			DefaultColor = lightGray + (black * 16)
-
- 00000000 12345678		arrayD SDWORD 12345678h,1A4B2000h,3434h,7AB9h
-	   1A4B2000
-	   00003434
-	   00007AB9
-
- 00000010 45 6E 74 65 72	prompt BYTE "Enter a 32-bit signed integer: ",0
-	   20 61 20 33 32
-	   2D 62 69 74 20
-	   73 69 67 6E 65
-	   64 20 69 6E 74
-	   65 67 65 72 3A
-	   20 00
+ 00000000 00000001		myArray DWORD 1,2,3,4,5
+	   00000002
+	   00000003
+	   00000004
+	   00000005
 
  00000000			.code
  00000000			main PROC
-
-				; Set text color to blue text on a light gray background
-
- 00000000  B8 00000071		     mov   eax,BlueTextOnGray
- 00000005  E8 00000000 E		call  SetTextColor
- 0000000A  E8 00000000 E		call  Clrscr			; clear the screen
-					
-					; Display an array using DumpMem.
-					
- 0000000F  BE 00000000 R		mov	esi,OFFSET arrayD	; starting OFFSET
- 00000014  BB 00000004			mov	ebx,TYPE arrayD	; doubleword = 4 bytes
- 00000019  B9 00000004			mov	ecx,LENGTHOF arrayD	; number of units in arrayD
- 0000001E  E8 00000000 E		call	DumpMem			; display memory
-
-				     ; Ask the user to input a sequence of signed integers	
-				     
- 00000023  E8 00000000 E		call	 Crlf			; new line
- 00000028  B9 00000004		     mov   ecx,COUNT
-				    
- 0000002D  BA 00000010 R	L1:  mov   edx,OFFSET prompt
- 00000032  E8 00000000 E	     call  WriteString
- 00000037  E8 00000000 E	     call  ReadInt			; input integer into EAX
- 0000003C  E8 00000000 E	     call  Crlf			; new line
-
-				; Display the integer in decimal, hexadecimal, and binary
-
- 00000041  E8 00000000 E		call	 WriteInt			; display in signed decimal
- 00000046  E8 00000000 E		call	 Crlf
- 0000004B  E8 00000000 E		call	 WriteHex			; display in hexadecimal
- 00000050  E8 00000000 E		call	 Crlf
- 00000055  E8 00000000 E		call	 WriteBin			; display in binary
- 0000005A  E8 00000000 E		call	 Crlf
- 0000005F  E8 00000000 E		call	 Crlf
- 00000064  E2 C7		     Loop  L1                 ; repeat the loop
-
-				; Return console window to default colors.
- 00000066  E8 00000000 E		call	 WaitMsg			; "Press any key..."
- 0000006B  B8 00000007			mov	 eax,DefaultColor
- 00000070  E8 00000000 E		call	 SetTextColor
- 00000075  E8 00000000 E		call	 Clrscr
+ 00000000  B8 0000000A		     mov eax,10
+ 00000005  BE 00000000 R	     mov esi,OFFSET myArray
+ 0000000A  B9 00000005		     mov ecx, 5
+ 0000000F  E8 00000007		     call DoubleIt
 					
 					exit
- 0000007A  6A 00	   *	    push   +000000000h
- 0000007C  E8 00000000 E   *	    call   ExitProcess
- 00000081			main ENDP
+ 00000014  6A 00	   *	    push   +000000000h
+ 00000016  E8 00000000 E   *	    call   ExitProcess
+ 0000001B			main ENDP
+
+ 0000001B			DoubleIt PROC
+ 0000001B  50			     push eax
+ 0000001C			TOP:
+ 0000001C  8B 06		     mov eax,[esi]
+ 0000001E  03 C0		     add eax,eax
+ 00000020  89 06		     mov [esi],eax
+ 00000022  83 C6 04		     add esi,4
+ 00000025  E2 F5		     loop TOP
+ 00000027  58			     pop eax
+ 00000028  C3			     RET
+ 00000029			DoubleIt ENDP
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    10/19/16 12:43:38
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    10/21/16 12:48:27
 CH5.asm							     Symbols 2 - 1
 
 
@@ -186,8 +151,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000030 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000081 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000014 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000029 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -201,6 +166,8 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+DoubleIt . . . . . . . . . . . .	P Near	 0000001B _TEXT	Length= 0000000E Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 0000001C _TEXT	
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -294,8 +261,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000081 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 0000002D _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000001B Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -315,15 +281,12 @@ Symbols:
 @fardata . . . . . . . . . . . .	Text   	 FLAT
 @stack . . . . . . . . . . . . .	Text   	 FLAT
 ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
-BlueTextOnGray . . . . . . . . .	Number	 00000071h   
 CAPSLOCK_ON  . . . . . . . . . .	Number	 00000080h   
-COUNT  . . . . . . . . . . . . .	Number	 00000004h   
 CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h   
 CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
 CTRL_MASK  . . . . . . . . . . .	Number	 0000000Ch   
 CreateFile . . . . . . . . . . .	Text   	 CreateFileA
 DO_NOT_SHARE . . . . . . . . . .	Number	 00000000h   
-DefaultColor . . . . . . . . . .	Number	 00000007h   
 ENABLE_ECHO_INPUT  . . . . . . .	Number	 00000004h   
 ENABLE_LINE_INPUT  . . . . . . .	Number	 00000002h   
 ENABLE_MOUSE_INPUT . . . . . . .	Number	 00000010h   
@@ -517,7 +480,6 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
-arrayD . . . . . . . . . . . . .	DWord	 00000000 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
@@ -532,7 +494,7 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-prompt . . . . . . . . . . . . .	Byte	 00000010 _DATA	
+myArray  . . . . . . . . . . . .	DWord	 00000000 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
