@@ -34,7 +34,7 @@ msg byte "Happy Halloween to each of you!!",0        ;0 is end marker for the st
 
      mov ebx,edx  ;;;; save the ptr to the string.
      mov dh,al
-     mov
+    
 
      POPAD
      ret
