@@ -92,9 +92,28 @@ RDATA:
 	pop ecx
 	
 loop RDATA
-
+	call clrscr
+	mov ecx,10
+	mov esi,OFFSET theRecords
 PrintData:
 
+	
+	mov edx,esi		;;First name print
+	call WriteString
+	add esi, SIZEOF firstBuf+1
+
+	mov edx,esi
+	call WriteString	;;Last name Print
+	add esi, SIZEOF lastBuf+1
+
+	mov edx,esi
+	call WriteString	;;phone number print
+	add esi, SIZEOF phoneBuf+1
+
+	mov edx,esi
+	call WriteString	;;email print
+	add esi, SIZEOF emailBuf+1
+loop PrintData
 exit
 
 main ENDP
