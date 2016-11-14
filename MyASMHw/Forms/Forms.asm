@@ -17,7 +17,9 @@ lastStr             BYTE      "Last Name:", 0
 phoneStr            BYTE      "Phone:", 0
 emailStr            BYTE      "Email:",0
 recordStr           BYTE      "Record Count",0
-pressEnt	    BYTE      "<Enter> by itself to quit.",0
+pressEnt	          BYTE      "<Enter> by itself to quit.",0
+Space               BYTE      " ",0
+PrintCount          BYTE      1
 
 counter             BYTE      0
 fifteenSpaces       BYTE      15 DUP(' '), 0
@@ -25,12 +27,12 @@ fourteenSpaces      BYTE      14 DUP(' '), 0
 twentyFiveSpaces    BYTE      25 DUP(' '), 0
 recordCounter	    BYTE      "Record Count:",0
 
-theRecords	    BYTE      10 DUP(2 DUP(15 DUP(' '),0) 14 DUP(' '),0 25 DUP(' '), 0)
-firstBuf	    BYTE      15 DUP(' ')
+theRecords	    BYTE      10 DUP(2 DUP(15 DUP(' '),0), 14 DUP(' '),0, 25 DUP(' '), 0)
+firstBuf	         BYTE      15 DUP(' ')
 lastBuf		    BYTE      15 DUP(' ')
-phoneBuf	    BYTE      14 DUP(' ')
-emailBuf	    BYTE      25 DUP(' ') 
-byteCount	    BYTE      ?
+phoneBuf	         BYTE      14 DUP(' ')
+emailBuf	         BYTE      25 DUP(' ') 
+byteCount	         BYTE      ?
 
 
 .code
@@ -39,19 +41,16 @@ main PROC
      call SetTextColor
      call clrscr
 
-     mov dl, (80 - SIZEOF headerStr)/2
-     mov dh, 1
-     call gotoxy
-
-     mov edx, OFFSET headerStr
-     call WriteString
+    
      mov ecx, 10
-     call drawFields
+     
      mov edi, OFFSET theRecords
 
 RDATA:
-	push ecx
-	mov dl, (80 - SIZEOF fifteenSpaces)/2
+     push ecx
+
+     call drawFields
+	mov dl, (80 - SIZEOF fifteenSpaces)/2 +5
 	mov dh, 4
 	call gotoxy
 
@@ -60,9 +59,9 @@ RDATA:
 	call ReadString
 	add edi, SIZEOF firstBuf+1
 	cmp eax,0
-	je PrintData
+	je FinishedDataEntry
 	
-	mov dl,(80 - SIZEOF fifteenSpaces + 1)/2
+	mov dl,(80 - SIZEOF fifteenSpaces + 1)/2 + 5
 	mov dh, 6
 	call gotoxy
 	mov edx, edi
@@ -70,7 +69,7 @@ RDATA:
 	call ReadString
 	add edi, SIZEOF lastBuf+1
 
-	mov dl,((80 - SIZEOF fifteenSpaces)/2) + 3
+	mov dl,((80 - SIZEOF fifteenSpaces)/2) + 5
 	mov dh, 8
 	call gotoxy
 	mov edx, edi
@@ -78,7 +77,7 @@ RDATA:
 	call ReadString
 	add edi, SIZEOF phoneBuf+1	
 
-	mov dl,((80 - SIZEOF TwentyFiveSpaces)/2)+8
+	mov dl,((80 - SIZEOF TwentyFiveSpaces)/2)+10
 	mov dh, 10
 	call gotoxy
 	mov edx, edi
@@ -87,32 +86,58 @@ RDATA:
 	add edi, SIZEOF emailBuf+1
 
 	inc counter
-	call drawFields
 
-	pop ecx
 	
+ 
+	pop ecx
 loop RDATA
 	call clrscr
-	mov ecx,10
-	mov esi,OFFSET theRecords
+
+FinishedDataEntry:
+     mov eax, textColor
+     call setTextColor
+     call clrscr
+
+	movzx ecx,counter
+	mov esi, OFFSET theRecords
 PrintData:
 
+     mov dl, (80 - SIZEOF headerStr)/2
+     mov dh, 1
+     call gotoxy
+
+     mov edx, OFFSET headerStr
+     call WriteString
+
+     mov dl, 0
+     mov dh,4
+     call gotoxy
 	
-	mov edx,esi		;;First name print
+	mov edx, esi	;;First name print
 	call WriteString
+     mov edx, OFFSET Space
+     call WriteString
 	add esi, SIZEOF firstBuf+1
 
 	mov edx,esi
 	call WriteString	;;Last name Print
+     mov edx, OFFSET Space
+     call WriteString
 	add esi, SIZEOF lastBuf+1
 
 	mov edx,esi
 	call WriteString	;;phone number print
+     mov edx, OFFSET Space
+     call WriteString
 	add esi, SIZEOF phoneBuf+1
 
 	mov edx,esi
 	call WriteString	;;email print
+     mov edx, OFFSET Space
+     call WriteString
 	add esi, SIZEOF emailBuf+1
+
+     add dh,2
 loop PrintData
 exit
 
@@ -120,6 +145,16 @@ main ENDP
 
 
 drawFields PROC
+
+     mov eax, textColor
+     call setTextColor
+
+     mov dl, (80 - SIZEOF headerStr)/2
+     mov dh, 1
+     call gotoxy
+
+     mov edx, OFFSET headerStr
+     call WriteString
      mov dl, (80 - SIZEOF firstStr - SIZEOF fifteenSpaces)/2
      mov dh,4
      call gotoxy
@@ -188,25 +223,27 @@ drawFields PROC
      mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8
      mov dh, 13
      call gotoxy
-     mov eax, OFFSET pressEnt
+     mov edx, OFFSET pressEnt
      call WriteString
 
 FIRSTENTRY:
      mov dl, (80 - 16)						;; X-coordinate of the record counter.
-     mov dh, 79							;; Y-coordinate of the record counter.
+     mov dh, 24							;; Y-coordinate of the record counter.
      call gotoxy						;; mov cursor to above coordinates.
 
      mov eax, textColor
      call setTextColor
 
-     mov eax, OFFSET recordCounter
+     mov edx, OFFSET recordCounter
      call WriteString
 
      mov eax, blankColor
      call setTextColor
 
-     mov eax, OFFSET counter
-     call WriteString
+     movzx eax, counter
+     call WriteDec
+
+ 
      
   RET
 drawFields ENDP

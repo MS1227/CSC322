@@ -1,8 +1,8 @@
-﻿Build started 11/11/2016 1:57:13 PM.
+﻿Build started 11/14/2016 10:42:34 AM.
      1>Project "Z:\CSC322\MyASMHw\Forms\Project.vcxproj" on node 2 (Build target(s)).
      1>_MASM:
          Assembling Forms.asm...
-         cmd.exe /C "C:\Users\schnider_ms\AppData\Local\Temp\tmp7432e407efef42c8b6547ecad47000af.cmd"
+         cmd.exe /C "C:\Users\schnider_ms\AppData\Local\Temp\tmp95f1aa97c2924d4aab88c317fbe51852.cmd"
          ml.exe /c /nologo /Sg /WX /Zi /Fo"Debug\Forms.obj" /Fl"Project.lst" /I "c:\Irvine" /W3 /errorReport:prompt  /TaForms.asm
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Z:\CSC322\MyASMHw\Forms\Debug\Project.exe" /NOLOGO /LIBPATH:c:\Irvine user32.lib irvine32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"Z:\CSC322\MyASMHw\Forms\Debug\Project.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE:NO /IMPLIB:"Z:\CSC322\MyASMHw\Forms\Debug\Project.lib" /MACHINE:X86 /SAFESEH:NO Debug\Forms.obj
@@ -11,4 +11,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.92
+Time Elapsed 00:00:00.81
