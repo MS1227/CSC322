@@ -17,11 +17,15 @@ lastStr             BYTE      "Last Name:", 0
 phoneStr            BYTE      "Phone:", 0
 emailStr            BYTE      "Email:",0
 recordStr           BYTE      "Record Count",0
-pressEnt	          BYTE      "<Enter> by itself to quit.",0
+pressEnt	    BYTE      "<Enter> by itself to quit.",0
 Space               BYTE      " ",0
-PrintCount          BYTE      1
+PrintCount          BYTE      01
+firstP		    BYTE      "First Name",0
+lastP		    BYTE      "Last Name",0
+phoneP		    BYTE      "Phone Number",0
+emailP		    BYTE      "Email Address",0
 
-counter             BYTE      0
+counter             BYTE      00
 fifteenSpaces       BYTE      15 DUP(' '), 0
 fourteenSpaces      BYTE      14 DUP(' '), 0
 twentyFiveSpaces    BYTE      25 DUP(' '), 0
@@ -109,9 +113,32 @@ PrintData:
      mov edx, OFFSET headerStr
      call WriteString
 
-     mov dl, 0
+     mov dl, (80 - SIZEOF firstBuf - SIZEOF lastBuf - SIZEOF phoneBuf - SIZEOF emailBuf)
      mov dh,4
      call gotoxy
+     
+	mov edx, OFFSET firstP
+	call WriteString
+	
+	mov dl, (80 - SIZEOF lastBuf - SIZEOF phoneBuf - SIZEOF emailBuf)
+	mov dh, 4
+	call gotoxy
+	
+	mov edx, OFFSET lastP
+	call WriteString
+
+	mov dl, (80 - SIZEOF phoneBuf - SIZEOF emailBuf)
+	mov dh, 4
+	call gotoxy
+	mov edx, OFFSET phoneP
+	call WriteString
+
+	mov dl, (80 - SIZEOF emailBuf)
+	mov dh, 4
+	call gotoxy
+	mov edx, OFFSET emailP
+	call WriteString
+	
 	
 	mov edx, esi	;;First name print
 	call WriteString
