@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/14/16 10:42:34
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/14/16 14:07:52
 Forms.asm						     Page 1 - 1
 
 
@@ -63,23 +63,36 @@ Forms.asm						     Page 1 - 1
 	   20 71 75 69 74
 	   2E 00
  00000088 20 00			Space               BYTE      " ",0
- 0000008A 01			PrintCount          BYTE      1
 
- 0000008B 00			counter             BYTE      0
- 0000008C  0000000F [		fifteenSpaces       BYTE      15 DUP(' '), 0
+ 0000008A 46 69 72 73 74	firstP		     BYTE      "First Name",0
+	   20 4E 61 6D 65
+	   00
+ 00000095 4C 61 73 74 20	lastP		     BYTE      "Last Name",0
+	   4E 61 6D 65 00
+ 0000009F 50 68 6F 6E 65	phoneP		     BYTE      "Phone Number",0
+	   20 4E 75 6D 62
+	   65 72 00
+ 000000AC 45 6D 61 69 6C	emailP		     BYTE      "Email Address",0
+	   20 41 64 64 72
+	   65 73 73 00
+
+ 000000BA 01			PrintCount          BYTE      01
+ 000000BB 00			counter             BYTE      00
+ 000000BC  0000000F [		fifteenSpaces       BYTE      15 DUP(' '), 0
 	    20
 	   ] 00
- 0000009C  0000000E [		fourteenSpaces      BYTE      14 DUP(' '), 0
+ 000000CC  0000000E [		fourteenSpaces      BYTE      14 DUP(' '), 0
 	    20
 	   ] 00
- 000000AB  00000019 [		twentyFiveSpaces    BYTE      25 DUP(' '), 0
+ 000000DB  00000019 [		twentyFiveSpaces    BYTE      25 DUP(' '), 0
 	    20
 	   ] 00
- 000000C5 52 65 63 6F 72	recordCounter	    BYTE      "Record Count:",0
+ 000000F5 52 65 63 6F 72	recordCounter	     BYTE      "Record Count:",0
 	   64 20 43 6F 75
 	   6E 74 3A 00
+ 00000103 05			printLine           BYTE      5
 
- 000000D3  0000000A [		theRecords	    BYTE      10 DUP(2 DUP(15 DUP(' '),0), 14 DUP(' '),0, 25 DUP(' '), 0)
+ 00000104  0000000A [		theRecords	    BYTE      10 DUP(2 DUP(15 DUP(' '),0), 14 DUP(' '),0, 25 DUP(' '), 0)
 	    00000002 [
 	     0000000F [
 	      20
@@ -92,19 +105,19 @@ Forms.asm						     Page 1 - 1
 	     20
 	    ] 00
 	   ]
- 000003AD  0000000F [		firstBuf	         BYTE      15 DUP(' ')
+ 000003DE  0000000F [		firstBuf	         BYTE      15 DUP(' ')
 	    20
 	   ]
- 000003BC  0000000F [		lastBuf		    BYTE      15 DUP(' ')
+ 000003ED  0000000F [		lastBuf		    BYTE      15 DUP(' ')
 	    20
 	   ]
- 000003CB  0000000E [		phoneBuf	         BYTE      14 DUP(' ')
+ 000003FC  0000000E [		phoneBuf	         BYTE      14 DUP(' ')
 	    20
 	   ]
- 000003D9  00000019 [		emailBuf	         BYTE      25 DUP(' ') 
+ 0000040A  00000019 [		emailBuf	         BYTE      25 DUP(' ') 
 	    20
 	   ]
- 000003F2 00			byteCount	         BYTE      ?
+ 00000423 00			byteCount	         BYTE      ?
 
 
  00000000			.code
@@ -116,12 +129,12 @@ Forms.asm						     Page 1 - 1
 				    
  0000000F  B9 0000000A		     mov ecx, 10
 				     
- 00000014  BF 000000D3 R	     mov edi, OFFSET theRecords
+ 00000014  BF 00000104 R	     mov edi, OFFSET theRecords
 
  00000019			RDATA:
  00000019  51			     push ecx
 
- 0000001A  E8 00000106		     call drawFields
+ 0000001A  E8 000001BE		     call drawFields
  0000001F  B2 25			mov dl, (80 - SIZEOF fifteenSpaces)/2 +5
  00000021  B6 04			mov dh, 4
  00000023  E8 00000000 E		call gotoxy
@@ -157,7 +170,7 @@ Forms.asm						     Page 1 - 1
  0000007C  E8 00000000 E		call ReadString
  00000081  83 C7 1A			add edi, SIZEOF emailBuf+1
 
- 00000084  FE 05 0000008B R		inc counter
+ 00000084  FE 05 000000BB R		inc counter
 
 					
 				 
@@ -169,162 +182,226 @@ Forms.asm						     Page 1 - 1
  00000092  A1 00000000 R	     mov eax, textColor
  00000097  E8 00000000 E	     call setTextColor
  0000009C  E8 00000000 E	     call clrscr
+ 000000A1  E8 000000D2		     call drawPrint
+ 000000A6  0F B6 0D			movzx ecx,counter
+	   000000BB R
+ 000000AD  BE 00000104 R		mov esi, OFFSET theRecords
 
- 000000A1  0F B6 0D			movzx ecx,counter
-	   0000008B R
- 000000A8  BE 000000D3 R		mov esi, OFFSET theRecords
- 000000AD			PrintData:
+ 000000B2			PrintData:
+ 000000B2  0F B6 05		     movzx eax, printCount
+	   000000BA R
+ 000000B9  E8 00000000 E	     call writeDec
+ 000000BE  0F B6 05		     movzx eax, space
+	   00000088 R
+ 000000C5  E8 00000000 E	     call writeChar
+ 000000CA  E8 00000000 E	     call writeChar
+ 000000CF  E8 0000007A		     call printFirst
 
- 000000AD  B2 0E		     mov dl, (80 - SIZEOF headerStr)/2
- 000000AF  B6 01		     mov dh, 1
- 000000B1  E8 00000000 E	     call gotoxy
+ 000000D4  B2 12		     mov dl, 3 + SIZEOF firstBuf
+ 000000D6  8A 35 00000103 R	     mov dh, printLine
+ 000000DC  E8 00000000 E	     call gotoxy
+ 000000E1  E8 0000007D		     call printLast
 
- 000000B6  BA 00000008 R	     mov edx, OFFSET headerStr
- 000000BB  E8 00000000 E	     call WriteString
-
- 000000C0  B2 00		     mov dl, 0
- 000000C2  B6 04		     mov dh,4
- 000000C4  E8 00000000 E	     call gotoxy
+ 000000E6  B2 21		     mov dl, 3 + SIZEOF firstBuf + SIZEOF lastBuf
+ 000000E8  8A 35 00000103 R	     mov dh, printLine
+ 000000EE  E8 00000000 E	     call gotoxy
+ 000000F3  E8 00000041		     call printPhone
 					
- 000000C9  8B D6			mov edx, esi	;;First name print
- 000000CB  E8 00000000 E		call WriteString
- 000000D0  BA 00000088 R	     mov edx, OFFSET Space
- 000000D5  E8 00000000 E	     call WriteString
- 000000DA  83 C6 10			add esi, SIZEOF firstBuf+1
+ 000000F8  B2 2F		     mov dl, 3 + SIZEOF firstBuf + SIZEOF lastBuf + SIZEOF phoneBuf
+ 000000FA  8A 35 00000103 R	     mov dh, printLine
+ 00000100  E8 00000000 E	     call gotoxy
+ 00000105  E8 0000001A		     call printEmail
+					
+ 0000010A  FE 05 000000BA R	     inc printCount
+ 00000110  E8 00000000 E	     call crlf
 
- 000000DD  8B D6			mov edx,esi
- 000000DF  E8 00000000 E		call WriteString	;;Last name Print
- 000000E4  BA 00000088 R	     mov edx, OFFSET Space
- 000000E9  E8 00000000 E	     call WriteString
- 000000EE  83 C6 10			add esi, SIZEOF lastBuf+1
-
- 000000F1  8B D6			mov edx,esi
- 000000F3  E8 00000000 E		call WriteString	;;phone number print
- 000000F8  BA 00000088 R	     mov edx, OFFSET Space
- 000000FD  E8 00000000 E	     call WriteString
- 00000102  83 C6 0F			add esi, SIZEOF phoneBuf+1
-
- 00000105  8B D6			mov edx,esi
- 00000107  E8 00000000 E		call WriteString	;;email print
- 0000010C  BA 00000088 R	     mov edx, OFFSET Space
- 00000111  E8 00000000 E	     call WriteString
- 00000116  83 C6 1A			add esi, SIZEOF emailBuf+1
-
- 00000119  80 C6 02		     add dh,2
- 0000011C  E2 8F		loop PrintData
+ 00000115  FE 05 00000103 R	     inc printLine
+ 0000011B  E2 95		loop PrintData
 				exit
- 0000011E  6A 00	   *	    push   +000000000h
- 00000120  E8 00000000 E   *	    call   ExitProcess
+ 0000011D  6A 00	   *	    push   +000000000h
+ 0000011F  E8 00000000 E   *	    call   ExitProcess
 
- 00000125			main ENDP
+ 00000124			main ENDP
+ 00000124			printEmail PROC
+ 00000124  8B D6		     mov edx,esi
+ 00000126  E8 00000000 E		call WriteString	          ;;email print
+ 0000012B  BA 00000088 R	     mov edx, OFFSET Space
+ 00000130  E8 00000000 E	     call WriteString
+ 00000135  83 C6 1A			add esi, SIZEOF emailBuf+1
+ 00000138  C3			RET
+ 00000139			PrintEmail ENDP
+ 00000139			printPhone PROC
+ 00000139  8B D6		     mov edx, esi
+ 0000013B  E8 00000000 E	     call WriteString	          ;;phone number print
+ 00000140  BA 00000088 R	     mov edx, OFFSET Space
+ 00000145  E8 00000000 E	     call WriteString
+ 0000014A  83 C6 0F			add esi, SIZEOF phoneBuf+1
 
+ 0000014D  C3			RET
+ 0000014E			printPhone ENDP
+ 0000014E			printFirst PROC
+ 0000014E  8B D6		     mov edx, esi	               ;;First name print
+ 00000150  E8 00000000 E		call WriteString    
+ 00000155  BA 00000088 R	     mov edx, OFFSET Space
+ 0000015A  E8 00000000 E	     call WriteString
+ 0000015F  83 C6 10			add esi, SIZEOF firstBuf+1
+ 00000162  C3			RET
+ 00000163			printFirst ENDP
 
- 00000125			drawFields PROC
+ 00000163			printLast PROC
+ 00000163  8B D6		     mov edx,esi
+ 00000165  E8 00000000 E		call WriteString	          ;;Last name Print
+ 0000016A  BA 00000088 R	     mov edx, OFFSET Space
+ 0000016F  E8 00000000 E	     call WriteString
+ 00000174  83 C6 10			add esi, SIZEOF lastBuf+1
+ 00000177  C3			RET
+ 00000178			printLast ENDP
 
- 00000125  A1 00000000 R	     mov eax, textColor
- 0000012A  E8 00000000 E	     call setTextColor
+ 00000178			drawPrint PROC
+ 00000178  B2 0E		     mov dl, (80 - SIZEOF headerStr)/2
+ 0000017A  B6 01		     mov dh, 1
+ 0000017C  E8 00000000 E	     call gotoxy
 
- 0000012F  B2 0E		     mov dl, (80 - SIZEOF headerStr)/2
- 00000131  B6 01		     mov dh, 1
- 00000133  E8 00000000 E	     call gotoxy
+ 00000181  BA 00000008 R	     mov edx, OFFSET headerStr
+ 00000186  E8 00000000 E	     call WriteString
 
- 00000138  BA 00000008 R	     mov edx, OFFSET headerStr
- 0000013D  E8 00000000 E	     call WriteString
- 00000142  B2 1A		     mov dl, (80 - SIZEOF firstStr - SIZEOF fifteenSpaces)/2
- 00000144  B6 04		     mov dh,4
- 00000146  E8 00000000 E	     call gotoxy
-
- 0000014B  BA 0000003B R	     mov edx, OFFSET firstStr
- 00000150  E8 00000000 E	     call WriteString						;;Print first name string.
-
- 00000155  A1 00000004 R	     mov eax, blankColor
- 0000015A  E8 00000000 E	     call SetTextColor
-
- 0000015F  BA 0000008C R	     mov edx, OFFSET fifteenSpaces
- 00000164  E8 00000000 E	     call WriteString
-
- 00000169  B2 1B		     mov dl, (80 - SIZEOF lastStr - SIZEOF fifteenSpaces+1)/2
- 0000016B  B6 06		     mov dh, 6
- 0000016D  E8 00000000 E	     call gotoxy
-
- 00000172  A1 00000000 R	     mov eax, textColor
- 00000177  E8 00000000 E	     call setTextColor
-
- 0000017C  BA 00000047 R	     mov edx, OFFSET lastStr					;;Print last name string.
- 00000181  E8 00000000 E	     call WriteString
-
- 00000186  A1 00000004 R	     mov eax, blankColor
- 0000018B  E8 00000000 E	     call setTextColor
-
- 00000190  BA 0000008C R	     mov edx, OFFSET fifteenSpaces
- 00000195  E8 00000000 E	     call WriteString
-
- 0000019A  B2 1F		     mov dl, ((80 - SIZEOF phoneStr - SIZEOF fifteenSpaces)/2) + 3
- 0000019C  B6 08		     mov dh, 8
- 0000019E  E8 00000000 E	     call gotoxy
-
- 000001A3  A1 00000000 R	     mov eax, textColor
- 000001A8  E8 00000000 E	     call setTextColor
-
- 000001AD  BA 00000052 R	     mov edx, OFFSET phoneStr
- 000001B2  E8 00000000 E	     call WriteString						;;Print phone string.
-
- 000001B7  A1 00000004 R	      mov eax, blankColor
- 000001BC  E8 00000000 E	     call setTextColor
-
- 000001C1  BA 0000009C R	     mov edx, OFFSET fourteenSpaces
- 000001C6  E8 00000000 E	     call WriteString
-
-
- 000001CB  B2 1F		     mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8
- 000001CD  B6 0A		     mov dh, 10
- 000001CF  E8 00000000 E	     call gotoxy
-
- 000001D4  A1 00000000 R	     mov eax, textColor
- 000001D9  E8 00000000 E	     call setTextColor
-
- 000001DE  BA 00000059 R	     mov edx, OFFSET emailStr
- 000001E3  E8 00000000 E	     call WriteString						;;Print email string.
-
- 000001E8  A1 00000004 R	      mov eax, blankColor
- 000001ED  E8 00000000 E	     call setTextColor
-
- 000001F2  BA 000000AB R	     mov edx, OFFSET TwentyFiveSpaces
- 000001F7  E8 00000000 E	     call WriteString
+ 0000018B  B2 03		     mov dl, 3
+ 0000018D  B6 04		     mov dh,4
+ 0000018F  E8 00000000 E	     call gotoxy
 				     
- 000001FC  83 F9 0A		     cmp ecx,10
- 000001FF  7D 13		     jge FIRSTENTRY
+ 00000194  BA 0000008A R		mov edx, OFFSET firstP
+ 00000199  E8 00000000 E		call WriteString
+					
+ 0000019E  B2 12			mov dl, 3 + SIZEOF firstBuf
+ 000001A0  B6 04			mov dh, 4
+ 000001A2  E8 00000000 E		call gotoxy
+					
+ 000001A7  BA 00000095 R		mov edx, OFFSET lastP
+ 000001AC  E8 00000000 E		call WriteString
+
+ 000001B1  B2 21			mov dl, (3 + SIZEOF firstBuf + SIZEOF lastBuf)
+ 000001B3  B6 04			mov dh, 4
+ 000001B5  E8 00000000 E		call gotoxy
+ 000001BA  BA 0000009F R		mov edx, OFFSET phoneP
+ 000001BF  E8 00000000 E		call WriteString
+
+ 000001C4  B2 2F			mov dl, (3+ SIZEOF firstBuf + SIZEOF lastBuf + SIZEOF phoneBuf)
+ 000001C6  B6 04			mov dh, 4
+ 000001C8  E8 00000000 E		call gotoxy
+ 000001CD  BA 000000AC R		mov edx, OFFSET emailP
+ 000001D2  E8 00000000 E		call WriteString
+
+ 000001D7  E8 00000000 E	     call crlf
 				     
- 00000201  B2 1F		     mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8
- 00000203  B6 0D		     mov dh, 13
- 00000205  E8 00000000 E	     call gotoxy
- 0000020A  BA 0000006D R	     mov edx, OFFSET pressEnt
- 0000020F  E8 00000000 E	     call WriteString
+ 000001DC  C3			  RET
+ 000001DD			drawPrint ENDP
 
- 00000214			FIRSTENTRY:
- 00000214  B2 40		     mov dl, (80 - 16)						;; X-coordinate of the record counter.
- 00000216  B6 18		     mov dh, 24							;; Y-coordinate of the record counter.
- 00000218  E8 00000000 E	     call gotoxy						;; mov cursor to above coordinates.
+ 000001DD			drawFields PROC
 
- 0000021D  A1 00000000 R	     mov eax, textColor
- 00000222  E8 00000000 E	     call setTextColor
+ 000001DD  A1 00000000 R	     mov eax, textColor
+ 000001E2  E8 00000000 E	     call setTextColor
 
- 00000227  BA 000000C5 R	     mov edx, OFFSET recordCounter
- 0000022C  E8 00000000 E	     call WriteString
+ 000001E7  B2 0E		     mov dl, (80 - SIZEOF headerStr)/2
+ 000001E9  B6 01		     mov dh, 1
+ 000001EB  E8 00000000 E	     call gotoxy
 
- 00000231  A1 00000004 R	     mov eax, blankColor
- 00000236  E8 00000000 E	     call setTextColor
+ 000001F0  BA 00000008 R	     mov edx, OFFSET headerStr
+ 000001F5  E8 00000000 E	     call WriteString
+ 000001FA  B2 1A		     mov dl, (80 - SIZEOF firstStr - SIZEOF fifteenSpaces)/2
+ 000001FC  B6 04		     mov dh,4
+ 000001FE  E8 00000000 E	     call gotoxy
 
- 0000023B  0F B6 05		     movzx eax, counter
-	   0000008B R
- 00000242  E8 00000000 E	     call WriteDec
+ 00000203  BA 0000003B R	     mov edx, OFFSET firstStr
+ 00000208  E8 00000000 E	     call WriteString						;;Print first name string.
+
+ 0000020D  A1 00000004 R	     mov eax, blankColor
+ 00000212  E8 00000000 E	     call SetTextColor
+
+ 00000217  BA 000000BC R	     mov edx, OFFSET fifteenSpaces
+ 0000021C  E8 00000000 E	     call WriteString
+
+ 00000221  B2 1B		     mov dl, (80 - SIZEOF lastStr - SIZEOF fifteenSpaces+1)/2
+ 00000223  B6 06		     mov dh, 6
+ 00000225  E8 00000000 E	     call gotoxy
+
+ 0000022A  A1 00000000 R	     mov eax, textColor
+ 0000022F  E8 00000000 E	     call setTextColor
+
+ 00000234  BA 00000047 R	     mov edx, OFFSET lastStr					;;Print last name string.
+ 00000239  E8 00000000 E	     call WriteString
+
+ 0000023E  A1 00000004 R	     mov eax, blankColor
+ 00000243  E8 00000000 E	     call setTextColor
+
+ 00000248  BA 000000BC R	     mov edx, OFFSET fifteenSpaces
+ 0000024D  E8 00000000 E	     call WriteString
+
+ 00000252  B2 1F		     mov dl, ((80 - SIZEOF phoneStr - SIZEOF fifteenSpaces)/2) + 3
+ 00000254  B6 08		     mov dh, 8
+ 00000256  E8 00000000 E	     call gotoxy
+
+ 0000025B  A1 00000000 R	     mov eax, textColor
+ 00000260  E8 00000000 E	     call setTextColor
+
+ 00000265  BA 00000052 R	     mov edx, OFFSET phoneStr
+ 0000026A  E8 00000000 E	     call WriteString						;;Print phone string.
+
+ 0000026F  A1 00000004 R	      mov eax, blankColor
+ 00000274  E8 00000000 E	     call setTextColor
+
+ 00000279  BA 000000CC R	     mov edx, OFFSET fourteenSpaces
+ 0000027E  E8 00000000 E	     call WriteString
+
+
+ 00000283  B2 1F		     mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8
+ 00000285  B6 0A		     mov dh, 10
+ 00000287  E8 00000000 E	     call gotoxy
+
+ 0000028C  A1 00000000 R	     mov eax, textColor
+ 00000291  E8 00000000 E	     call setTextColor
+
+ 00000296  BA 00000059 R	     mov edx, OFFSET emailStr
+ 0000029B  E8 00000000 E	     call WriteString						;;Print email string.
+
+ 000002A0  A1 00000004 R	      mov eax, blankColor
+ 000002A5  E8 00000000 E	     call setTextColor
+
+ 000002AA  BA 000000DB R	     mov edx, OFFSET TwentyFiveSpaces
+ 000002AF  E8 00000000 E	     call WriteString
+				     
+ 000002B4  83 F9 0A		     cmp ecx,10
+ 000002B7  7D 13		     jge FIRSTENTRY
+				     
+ 000002B9  B2 1F		     mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8
+ 000002BB  B6 0D		     mov dh, 13
+ 000002BD  E8 00000000 E	     call gotoxy
+ 000002C2  BA 0000006D R	     mov edx, OFFSET pressEnt
+ 000002C7  E8 00000000 E	     call WriteString
+
+ 000002CC			FIRSTENTRY:
+ 000002CC  B2 40		     mov dl, (80 - 16)						;; X-coordinate of the record counter.
+ 000002CE  B6 18		     mov dh, 24							;; Y-coordinate of the record counter.
+ 000002D0  E8 00000000 E	     call gotoxy						;; mov cursor to above coordinates.
+
+ 000002D5  A1 00000000 R	     mov eax, textColor
+ 000002DA  E8 00000000 E	     call setTextColor
+
+ 000002DF  BA 000000F5 R	     mov edx, OFFSET recordCounter
+ 000002E4  E8 00000000 E	     call WriteString
+
+ 000002E9  A1 00000004 R	     mov eax, blankColor
+ 000002EE  E8 00000000 E	     call setTextColor
+
+ 000002F3  0F B6 05		     movzx eax, counter
+	   000000BB R
+ 000002FA  E8 00000000 E	     call WriteDec
 
 				 
 				     
- 00000247  C3			  RET
- 00000248			drawFields ENDP
+ 000002FF  C3			  RET
+ 00000300			drawFields ENDP
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/14/16 10:42:34
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/14/16 14:07:52
 Forms.asm						     Symbols 2 - 1
 
 
@@ -418,8 +495,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000003F3 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000248 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000424 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000300 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -526,12 +603,17 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-drawFields . . . . . . . . . . .	P Near	 00000125 _TEXT	Length= 00000123 Public STDCALL
-  FIRSTENTRY . . . . . . . . . .	L Near	 00000214 _TEXT	
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000125 Public STDCALL
+drawFields . . . . . . . . . . .	P Near	 000001DD _TEXT	Length= 00000123 Public STDCALL
+  FIRSTENTRY . . . . . . . . . .	L Near	 000002CC _TEXT	
+drawPrint  . . . . . . . . . . .	P Near	 00000178 _TEXT	Length= 00000065 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000124 Public STDCALL
   RDATA  . . . . . . . . . . . .	L Near	 00000019 _TEXT	
   FinishedDataEntry  . . . . . .	L Near	 00000092 _TEXT	
-  PrintData  . . . . . . . . . .	L Near	 000000AD _TEXT	
+  PrintData  . . . . . . . . . .	L Near	 000000B2 _TEXT	
+printEmail . . . . . . . . . . .	P Near	 00000124 _TEXT	Length= 00000015 Public STDCALL
+printFirst . . . . . . . . . . .	P Near	 0000014E _TEXT	Length= 00000015 Public STDCALL
+printLast  . . . . . . . . . . .	P Near	 00000163 _TEXT	Length= 00000015 Public STDCALL
+printPhone . . . . . . . . . . .	P Near	 00000139 _TEXT	Length= 00000015 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -655,7 +737,7 @@ NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h
 OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
 OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
 PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
-PrintCount . . . . . . . . . . .	Byte	 0000008A _DATA	
+PrintCount . . . . . . . . . . .	Byte	 000000BA _DATA	
 RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h   
 RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
 ReadConsoleInput . . . . . . . .	Text   	 ReadConsoleInputA
@@ -756,20 +838,23 @@ black  . . . . . . . . . . . . .	Number	 00000000h
 blankColor . . . . . . . . . . .	DWord	 00000004 _DATA	
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-byteCount  . . . . . . . . . . .	Byte	 000003F2 _DATA	
-counter  . . . . . . . . . . . .	Byte	 0000008B _DATA	
+byteCount  . . . . . . . . . . .	Byte	 00000423 _DATA	
+counter  . . . . . . . . . . . .	Byte	 000000BB _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
-emailBuf . . . . . . . . . . . .	Byte	 000003D9 _DATA	
+emailBuf . . . . . . . . . . . .	Byte	 0000040A _DATA	
+emailP . . . . . . . . . . . . .	Byte	 000000AC _DATA	
 emailStr . . . . . . . . . . . .	Byte	 00000059 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-fifteenSpaces  . . . . . . . . .	Byte	 0000008C _DATA	
-firstBuf . . . . . . . . . . . .	Byte	 000003AD _DATA	
+fifteenSpaces  . . . . . . . . .	Byte	 000000BC _DATA	
+firstBuf . . . . . . . . . . . .	Byte	 000003DE _DATA	
+firstP . . . . . . . . . . . . .	Byte	 0000008A _DATA	
 firstStr . . . . . . . . . . . .	Byte	 0000003B _DATA	
-fourteenSpaces . . . . . . . . .	Byte	 0000009C _DATA	
+fourteenSpaces . . . . . . . . .	Byte	 000000CC _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
 headerStr  . . . . . . . . . . .	Byte	 00000008 _DATA	
-lastBuf  . . . . . . . . . . . .	Byte	 000003BC _DATA	
+lastBuf  . . . . . . . . . . . .	Byte	 000003ED _DATA	
+lastP  . . . . . . . . . . . . .	Byte	 00000095 _DATA	
 lastStr  . . . . . . . . . . . .	Byte	 00000047 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
@@ -778,15 +863,17 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-phoneBuf . . . . . . . . . . . .	Byte	 000003CB _DATA	
+phoneBuf . . . . . . . . . . . .	Byte	 000003FC _DATA	
+phoneP . . . . . . . . . . . . .	Byte	 0000009F _DATA	
 phoneStr . . . . . . . . . . . .	Byte	 00000052 _DATA	
 pressEnt . . . . . . . . . . . .	Byte	 0000006D _DATA	
-recordCounter  . . . . . . . . .	Byte	 000000C5 _DATA	
+printLine  . . . . . . . . . . .	Byte	 00000103 _DATA	
+recordCounter  . . . . . . . . .	Byte	 000000F5 _DATA	
 recordStr  . . . . . . . . . . .	Byte	 00000060 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 textColor  . . . . . . . . . . .	DWord	 00000000 _DATA	
-theRecords . . . . . . . . . . .	Byte	 000000D3 _DATA	
-twentyFiveSpaces . . . . . . . .	Byte	 000000AB _DATA	
+theRecords . . . . . . . . . . .	Byte	 00000104 _DATA	
+twentyFiveSpaces . . . . . . . .	Byte	 000000DB _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   

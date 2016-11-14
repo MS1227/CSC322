@@ -17,19 +17,21 @@ lastStr             BYTE      "Last Name:", 0
 phoneStr            BYTE      "Phone:", 0
 emailStr            BYTE      "Email:",0
 recordStr           BYTE      "Record Count",0
-pressEnt	    BYTE      "<Enter> by itself to quit.",0
+pressEnt	          BYTE      "<Enter> by itself to quit.",0
 Space               BYTE      " ",0
-PrintCount          BYTE      01
-firstP		    BYTE      "First Name",0
-lastP		    BYTE      "Last Name",0
-phoneP		    BYTE      "Phone Number",0
-emailP		    BYTE      "Email Address",0
 
+firstP		     BYTE      "First Name",0
+lastP		     BYTE      "Last Name",0
+phoneP		     BYTE      "Phone Number",0
+emailP		     BYTE      "Email Address",0
+
+PrintCount          BYTE      01
 counter             BYTE      00
 fifteenSpaces       BYTE      15 DUP(' '), 0
 fourteenSpaces      BYTE      14 DUP(' '), 0
 twentyFiveSpaces    BYTE      25 DUP(' '), 0
-recordCounter	    BYTE      "Record Count:",0
+recordCounter	     BYTE      "Record Count:",0
+printLine           BYTE      5
 
 theRecords	    BYTE      10 DUP(2 DUP(15 DUP(' '),0), 14 DUP(' '),0, 25 DUP(' '), 0)
 firstBuf	         BYTE      15 DUP(' ')
@@ -101,11 +103,77 @@ FinishedDataEntry:
      mov eax, textColor
      call setTextColor
      call clrscr
-
+     call drawPrint
 	movzx ecx,counter
 	mov esi, OFFSET theRecords
-PrintData:
 
+PrintData:
+     movzx eax, printCount
+     call writeDec
+     movzx eax, space
+     call writeChar
+     call writeChar
+     call printFirst
+
+     mov dl, 3 + SIZEOF firstBuf
+     mov dh, printLine
+     call gotoxy
+     call printLast
+
+     mov dl, 3 + SIZEOF firstBuf + SIZEOF lastBuf
+     mov dh, printLine
+     call gotoxy
+     call printPhone
+	
+     mov dl, 3 + SIZEOF firstBuf + SIZEOF lastBuf + SIZEOF phoneBuf
+     mov dh, printLine
+     call gotoxy
+     call printEmail
+	
+     inc printCount
+     call crlf
+
+     inc printLine
+loop PrintData
+exit
+
+main ENDP
+printEmail PROC
+     mov edx,esi
+	call WriteString	          ;;email print
+     mov edx, OFFSET Space
+     call WriteString
+	add esi, SIZEOF emailBuf+1
+RET
+PrintEmail ENDP
+printPhone PROC
+     mov edx, esi
+     call WriteString	          ;;phone number print
+     mov edx, OFFSET Space
+     call WriteString
+	add esi, SIZEOF phoneBuf+1
+
+RET
+printPhone ENDP
+printFirst PROC
+     mov edx, esi	               ;;First name print
+	call WriteString    
+     mov edx, OFFSET Space
+     call WriteString
+	add esi, SIZEOF firstBuf+1
+RET
+printFirst ENDP
+
+printLast PROC
+     mov edx,esi
+	call WriteString	          ;;Last name Print
+     mov edx, OFFSET Space
+     call WriteString
+	add esi, SIZEOF lastBuf+1
+RET
+printLast ENDP
+
+drawPrint PROC
      mov dl, (80 - SIZEOF headerStr)/2
      mov dh, 1
      call gotoxy
@@ -113,63 +181,36 @@ PrintData:
      mov edx, OFFSET headerStr
      call WriteString
 
-     mov dl, (80 - SIZEOF firstBuf - SIZEOF lastBuf - SIZEOF phoneBuf - SIZEOF emailBuf)
+     mov dl, 3
      mov dh,4
      call gotoxy
      
 	mov edx, OFFSET firstP
 	call WriteString
 	
-	mov dl, (80 - SIZEOF lastBuf - SIZEOF phoneBuf - SIZEOF emailBuf)
+	mov dl, 3 + SIZEOF firstBuf
 	mov dh, 4
 	call gotoxy
 	
 	mov edx, OFFSET lastP
 	call WriteString
 
-	mov dl, (80 - SIZEOF phoneBuf - SIZEOF emailBuf)
+	mov dl, (3 + SIZEOF firstBuf + SIZEOF lastBuf)
 	mov dh, 4
 	call gotoxy
 	mov edx, OFFSET phoneP
 	call WriteString
 
-	mov dl, (80 - SIZEOF emailBuf)
+	mov dl, (3+ SIZEOF firstBuf + SIZEOF lastBuf + SIZEOF phoneBuf)
 	mov dh, 4
 	call gotoxy
 	mov edx, OFFSET emailP
 	call WriteString
-	
-	
-	mov edx, esi	;;First name print
-	call WriteString
-     mov edx, OFFSET Space
-     call WriteString
-	add esi, SIZEOF firstBuf+1
 
-	mov edx,esi
-	call WriteString	;;Last name Print
-     mov edx, OFFSET Space
-     call WriteString
-	add esi, SIZEOF lastBuf+1
-
-	mov edx,esi
-	call WriteString	;;phone number print
-     mov edx, OFFSET Space
-     call WriteString
-	add esi, SIZEOF phoneBuf+1
-
-	mov edx,esi
-	call WriteString	;;email print
-     mov edx, OFFSET Space
-     call WriteString
-	add esi, SIZEOF emailBuf+1
-
-     add dh,2
-loop PrintData
-exit
-
-main ENDP
-
+     call crlf
+     
+  RET
+drawPrint ENDP
 
 drawFields PROC
 
