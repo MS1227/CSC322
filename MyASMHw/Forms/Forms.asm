@@ -107,8 +107,7 @@ FinishedDataEntry:															;;label destination for the above jump instruct
 
 PrintData:																	;;Label used to print the records out with a loop
 	 
-     movzx eax, printCount													;;moves the printCount value into the eax, padded with leading zeros
-     call writeDec															;;WriteDec prints out the decimal value of the number in the eax
+     call doubleDigitPrint
      movzx eax, space														;;this line and the following 2 linesprint 2 spaces
      call writeChar			
      call printFirst														;;Proc call to print first name
@@ -136,7 +135,37 @@ PrintData:																	;;Label used to print the records out with a loop
 loop PrintData																;;Loops back to printData if ecx is not equal to 0
 exit									
 
-main ENDP																			
+main ENDP	
+doubleDigitPrint PROC                                                                     ;;procedure to print out a double digit number
+cmp printCount,10                                                                         ;;compare and conditional jump if printCount is equal to 10
+je TEN
+mov eax,0                                                                                 ;;else print 0 and then the integer number of the record
+call WriteDec
+jmp NOTTEN
+TEN:
+mov eax,1
+call WriteDec
+mov eax,0
+call WriteDec
+jmp DONE
+NOTTEN:
+movzx eax, printCount
+call WriteDec
+
+DONE:
+RET
+doubleDigitPrint ENDP
+doubleDigitInt PROC                                                                       ;;Proc for printing double digit numbers for the record count.
+push eax
+
+mov eax,0
+call WriteDec
+movzx eax, counter
+call WriteDec
+pop eax
+
+RET
+doubleDigitInt ENDP																		
 printEmail PROC																;;Procedure for printing out a stored email address referenced by the esi
      mov edx,esi															;;the address in the esi is moved to the edx
 	call WriteString	          ;;email print								;;WriteString prints out the string located in the edx
@@ -307,8 +336,7 @@ FIRSTENTRY:
      mov eax, blankColor
      call setTextColor
 
-     movzx eax, counter																;;number of records in the database is printed out
-     call WriteDec
+     call DoubleDigitInt
 
  
      

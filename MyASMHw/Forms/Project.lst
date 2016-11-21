@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/16/16 08:47:19
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/18/16 10:26:05
 Forms.asm						     Page 1 - 1
 
 
@@ -131,7 +131,7 @@ Forms.asm						     Page 1 - 1
  00000019			RDATA:																		;;Label for looping purposes
  00000019  51			     push ecx																;;ecx val is pushed onto the stack
 
- 0000001A  E8 000001B4		     call drawFields														;;drawFields is called to print the form to the window
+ 0000001A  E8 000001FE		     call drawFields														;;drawFields is called to print the form to the window
  0000001F  B2 25			mov dl, (80 - SIZEOF fifteenSpaces)/2 +5								;;X coordinate of first name blank
  00000021  B6 04			mov dh, 4																;;Y coordinate of first name blank
  00000023  E8 00000000 E		call gotoxy																;;Moves cursor to above x,y coords
@@ -178,227 +178,256 @@ Forms.asm						     Page 1 - 1
  0000008D  A1 00000000 R	     mov eax, textColor														;;moves the text color into the eax
  00000092  E8 00000000 E	     call setTextColor														;;proc call to set the text color to the one in the eax
  00000097  E8 00000000 E	     call clrscr															;;screen is cleared in prep for printing out records
- 0000009C  E8 000000CD		     call drawPrint															;;drawPrint proc is called to set up the column headers, etc. for printing
+ 0000009C  E8 00000117		     call drawPrint															;;drawPrint proc is called to set up the column headers, etc. for printing
  000000A1  0F B6 0D			movzx ecx,counter														;;moves the amount of records stored in counter, padded with leading zeros into the ecx
 	   000000AA R
  000000A8  BE 000000F4 R		mov esi, OFFSET theRecords												;;to set up a loop for printing. The esi is set to the address of theRecords array.
 
  000000AD			PrintData:																	;;Label used to print the records out with a loop
 					 
- 000000AD  0F B6 05		     movzx eax, printCount													;;moves the printCount value into the eax, padded with leading zeros
-	   000000A9 R
- 000000B4  E8 00000000 E	     call writeDec															;;WriteDec prints out the decimal value of the number in the eax
- 000000B9  0F B6 05		     movzx eax, space														;;this line and the following 2 linesprint 2 spaces
+ 000000AD  E8 00000061		     call doubleDigitPrint
+ 000000B2  0F B6 05		     movzx eax, space														;;this line and the following 2 linesprint 2 spaces
 	   00000077 R
- 000000C0  E8 00000000 E	     call writeChar			
- 000000C5  E8 0000007A		     call printFirst														;;Proc call to print first name
+ 000000B9  E8 00000000 E	     call writeChar			
+ 000000BE  E8 000000CB		     call printFirst														;;Proc call to print first name
 
- 000000CA  B2 12		     mov dl, 3 + SIZEOF firstBuf											;;x coordinate of first name is moved into the dl 
- 000000CC  8A 35 000000F3 R	     mov dh, printLine														;;y coordinate is set to the current printLine value
- 000000D2  E8 00000000 E	     call gotoxy															;;moves cursor to above x,y coordinate
- 000000D7  E8 0000007D		     call printLast															;;Proc call to print last name
+ 000000C3  B2 12		     mov dl, 3 + SIZEOF firstBuf											;;x coordinate of first name is moved into the dl 
+ 000000C5  8A 35 000000F3 R	     mov dh, printLine														;;y coordinate is set to the current printLine value
+ 000000CB  E8 00000000 E	     call gotoxy															;;moves cursor to above x,y coordinate
+ 000000D0  E8 000000CE		     call printLast															;;Proc call to print last name
 
- 000000DC  B2 21		     mov dl, 3 + SIZEOF firstBuf + SIZEOF lastBuf							;;Same as above
- 000000DE  8A 35 000000F3 R	     mov dh, printLine
- 000000E4  E8 00000000 E	     call gotoxy
- 000000E9  E8 00000041		     call printPhone							
+ 000000D5  B2 21		     mov dl, 3 + SIZEOF firstBuf + SIZEOF lastBuf							;;Same as above
+ 000000D7  8A 35 000000F3 R	     mov dh, printLine
+ 000000DD  E8 00000000 E	     call gotoxy
+ 000000E2  E8 00000092		     call printPhone							
 					
- 000000EE  B2 2F		     mov dl, 3 + SIZEOF firstBuf + SIZEOF lastBuf + SIZEOF phoneBuf		
- 000000F0  8A 35 000000F3 R	     mov dh, printLine
- 000000F6  E8 00000000 E	     call gotoxy
- 000000FB  E8 0000001A		     call printEmail
+ 000000E7  B2 2F		     mov dl, 3 + SIZEOF firstBuf + SIZEOF lastBuf + SIZEOF phoneBuf		
+ 000000E9  8A 35 000000F3 R	     mov dh, printLine
+ 000000EF  E8 00000000 E	     call gotoxy
+ 000000F4  E8 0000006B		     call printEmail
 					
- 00000100  FE 05 000000A9 R	     inc printCount															;;printCount is incremented for the printing of the next record if applicable
- 00000106  E8 00000000 E	     call crlf																;;Cursor is moved to a new line
+ 000000F9  FE 05 000000A9 R	     inc printCount															;;printCount is incremented for the printing of the next record if applicable
+ 000000FF  E8 00000000 E	     call crlf																;;Cursor is moved to a new line
 
- 0000010B  FE 05 000000F3 R	     inc printLine															;;printline is incremented to properly print the next record
+ 00000104  FE 05 000000F3 R	     inc printLine															;;printline is incremented to properly print the next record
 																							
- 00000111  E2 9A		loop PrintData																;;Loops back to printData if ecx is not equal to 0
+ 0000010A  E2 A1		loop PrintData																;;Loops back to printData if ecx is not equal to 0
 				exit									
- 00000113  6A 00	   *	    push   +000000000h
- 00000115  E8 00000000 E   *	    call   ExitProcess
+ 0000010C  6A 00	   *	    push   +000000000h
+ 0000010E  E8 00000000 E   *	    call   ExitProcess
 
- 0000011A			main ENDP																			
- 0000011A			printEmail PROC																;;Procedure for printing out a stored email address referenced by the esi
- 0000011A  8B D6		     mov edx,esi															;;the address in the esi is moved to the edx
- 0000011C  E8 00000000 E		call WriteString	          ;;email print								;;WriteString prints out the string located in the edx
- 00000121  BA 00000077 R	     mov edx, OFFSET Space													;;Space printed
- 00000126  E8 00000000 E	     call WriteString
- 0000012B  83 C6 1A			add esi, SIZEOF emailBuf+1												;;esi is updated to point to the next item in theRecords array
- 0000012E  C3			RET																			;;Return to calling proc
- 0000012F			PrintEmail ENDP
- 0000012F			printPhone PROC																;;Same as above proc
- 0000012F  8B D6		     mov edx, esi
- 00000131  E8 00000000 E	     call WriteString														;;phone number print
- 00000136  BA 00000077 R	     mov edx, OFFSET Space
- 0000013B  E8 00000000 E	     call WriteString
- 00000140  83 C6 0F			add esi, SIZEOF phoneBuf+1
+ 00000113			main ENDP	
+ 00000113			doubleDigitPrint PROC                                                                     ;;procedure to print out a double digit number
+ 00000113  80 3D 000000A9 R	cmp printCount,10                                                                         ;;compare and conditional jump if printCount is equal to 10
+	   0A
+ 0000011A  74 0C		je TEN
+ 0000011C  B8 00000000		mov eax,0                                                                                 ;;else print 0 and then the integer number of the record
+ 00000121  E8 00000000 E	call WriteDec
+ 00000126  EB 16		jmp NOTTEN
+ 00000128			TEN:
+ 00000128  B8 00000001		mov eax,1
+ 0000012D  E8 00000000 E	call WriteDec
+ 00000132  B8 00000000		mov eax,0
+ 00000137  E8 00000000 E	call WriteDec
+ 0000013C  EB 0C		jmp DONE
+ 0000013E			NOTTEN:
+ 0000013E  0F B6 05		movzx eax, printCount
+	   000000A9 R
+ 00000145  E8 00000000 E	call WriteDec
 
- 00000143  C3			RET
- 00000144			printPhone ENDP
- 00000144			printFirst PROC
- 00000144  8B D6		     mov edx, esi															;;First name print	
- 00000146  E8 00000000 E		call WriteString    
- 0000014B  BA 00000077 R	     mov edx, OFFSET Space
- 00000150  E8 00000000 E	     call WriteString
- 00000155  83 C6 10			add esi, SIZEOF firstBuf+1
- 00000158  C3			RET
- 00000159			printFirst ENDP
+ 0000014A			DONE:
+ 0000014A  C3			RET
+ 0000014B			doubleDigitPrint ENDP
+ 0000014B			doubleDigitInt PROC                                                                       ;;Proc for printing double digit numbers for the record count.
+ 0000014B  50			push eax
 
- 00000159			printLast PROC
- 00000159  8B D6		     mov edx,esi
- 0000015B  E8 00000000 E		call WriteString														;;Last name Print
- 00000160  BA 00000077 R	     mov edx, OFFSET Space
- 00000165  E8 00000000 E	     call WriteString
- 0000016A  83 C6 10			add esi, SIZEOF lastBuf+1
- 0000016D  C3			RET
- 0000016E			printLast ENDP
-
- 0000016E			drawPrint PROC																;;Proc to print out the formatted print out of the data in the array
- 0000016E  B2 17		     mov dl, (80 - SIZEOF headerStr)/2										;;x and y coords are set up and the cursor is moved to the coordinate.
- 00000170  B6 01		     mov dh, 1										
- 00000172  E8 00000000 E	     call gotoxy
-
- 00000177  BA 00000008 R	     mov edx, OFFSET headerStr												;;address of headerStr is moved into the edx and printed out by WriteString
- 0000017C  E8 00000000 E	     call WriteString														;;at the above coords
-
- 00000181  B2 03		     mov dl, 3																;;Above process is repeated below print the column headers 
- 00000183  B6 04		     mov dh,4
- 00000185  E8 00000000 E	     call gotoxy
-				     
- 0000018A  BA 00000079 R		mov edx, OFFSET firstP
- 0000018F  E8 00000000 E		call WriteString
-					
- 00000194  B2 12			mov dl, 3 + SIZEOF firstBuf
- 00000196  B6 04			mov dh, 4
- 00000198  E8 00000000 E		call gotoxy
-					
- 0000019D  BA 00000084 R		mov edx, OFFSET lastP
- 000001A2  E8 00000000 E		call WriteString
-
- 000001A7  B2 21			mov dl, (3 + SIZEOF firstBuf + SIZEOF lastBuf)
- 000001A9  B6 04			mov dh, 4
- 000001AB  E8 00000000 E		call gotoxy
- 000001B0  BA 0000008E R		mov edx, OFFSET phoneP
- 000001B5  E8 00000000 E		call WriteString
-
- 000001BA  B2 2F			mov dl, (3+ SIZEOF firstBuf + SIZEOF lastBuf + SIZEOF phoneBuf)
- 000001BC  B6 04			mov dh, 4
- 000001BE  E8 00000000 E		call gotoxy
- 000001C3  BA 0000009B R		mov edx, OFFSET emailP
- 000001C8  E8 00000000 E		call WriteString
-
- 000001CD  E8 00000000 E	     call crlf
-				     
- 000001D2  C3			  RET
- 000001D3			drawPrint ENDP
-
- 000001D3			drawFields PROC															;;Proc to set up the window with text boxes and box titles for the collection of data
-																						;;from the user.
- 000001D3  A1 00000000 R	     mov eax, textColor													;;textColor is set in prep for print out the title
- 000001D8  E8 00000000 E	     call setTextColor
-
- 000001DD  B2 17		     mov dl, (80 - SIZEOF headerStr)/2									;;cursor is moved to the xy coords of appropriate for the header string
- 000001DF  B6 01		     mov dh, 1
- 000001E1  E8 00000000 E	     call gotoxy
-					
- 000001E6  BA 00000008 R	     mov edx, OFFSET headerStr											;;Header is printed out
- 000001EB  E8 00000000 E	     call WriteString
- 000001F0  B2 1A		     mov dl, (80 - SIZEOF firstStr - SIZEOF fifteenSpaces)/2			;;x-y coords for the first name title
- 000001F2  B6 04		     mov dh,4
- 000001F4  E8 00000000 E	     call gotoxy
-
- 000001F9  BA 0000002A R	     mov edx, OFFSET firstStr
- 000001FE  E8 00000000 E	     call WriteString													;;Print first name title.
-
- 00000203  A1 00000004 R	     mov eax, blankColor												;;Blank color is set for the creation of pseudo text box.
- 00000208  E8 00000000 E	     call SetTextColor
-
- 0000020D  BA 000000AC R	     mov edx, OFFSET fifteenSpaces
- 00000212  E8 00000000 E	     call WriteString													;;Pseudo text box printed out.
-
- 00000217  B2 1B		     mov dl, (80 - SIZEOF lastStr - SIZEOF fifteenSpaces+1)/2			;;Same as above, but with different title
- 00000219  B6 06		     mov dh, 6
- 0000021B  E8 00000000 E	     call gotoxy
-
- 00000220  A1 00000000 R	     mov eax, textColor
- 00000225  E8 00000000 E	     call setTextColor
-
- 0000022A  BA 00000036 R	     mov edx, OFFSET lastStr					
- 0000022F  E8 00000000 E	     call WriteString
-
- 00000234  A1 00000004 R	     mov eax, blankColor
- 00000239  E8 00000000 E	     call setTextColor
-
- 0000023E  BA 000000AC R	     mov edx, OFFSET fifteenSpaces
- 00000243  E8 00000000 E	     call WriteString
-
- 00000248  B2 1F		     mov dl, ((80 - SIZEOF phoneStr - SIZEOF fifteenSpaces)/2) + 3
- 0000024A  B6 08		     mov dh, 8
- 0000024C  E8 00000000 E	     call gotoxy
-
- 00000251  A1 00000000 R	     mov eax, textColor
- 00000256  E8 00000000 E	     call setTextColor
-
- 0000025B  BA 00000041 R	     mov edx, OFFSET phoneStr
- 00000260  E8 00000000 E	     call WriteString						
-
- 00000265  A1 00000004 R	      mov eax, blankColor
- 0000026A  E8 00000000 E	     call setTextColor
-
- 0000026F  BA 000000BC R	     mov edx, OFFSET fourteenSpaces
- 00000274  E8 00000000 E	     call WriteString
-
-
- 00000279  B2 1F		     mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8
- 0000027B  B6 0A		     mov dh, 10
- 0000027D  E8 00000000 E	     call gotoxy
-
- 00000282  A1 00000000 R	     mov eax, textColor
- 00000287  E8 00000000 E	     call setTextColor
-
- 0000028C  BA 00000048 R	     mov edx, OFFSET emailStr
- 00000291  E8 00000000 E	     call WriteString						
-
- 00000296  A1 00000004 R	      mov eax, blankColor
- 0000029B  E8 00000000 E	     call setTextColor
-
- 000002A0  BA 000000CB R	     mov edx, OFFSET TwentyFiveSpaces
- 000002A5  E8 00000000 E	     call WriteString
-				     
- 000002AA  83 F9 0A		     cmp ecx,10																		;;The value in the ecx is compared to 10
- 000002AD  7D 13		     jge FIRSTENTRY																	;;If the value in the ecx is greater than or equal to 10, jump to FIRSTENTRY label
-				     
- 000002AF  B2 1F		     mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8				;;This code is reached after one record is read in, it simply prompts the user
- 000002B1  B6 0D		     mov dh, 13											;;to press enter to quit.
- 000002B3  E8 00000000 E	     call gotoxy
- 000002B8  BA 0000005C R	     mov edx, OFFSET pressEnt
- 000002BD  E8 00000000 E	     call WriteString
-
- 000002C2			FIRSTENTRY:
- 000002C2  B2 40		     mov dl, (80 - 16)																;; X-coordinate of the record counter.
- 000002C4  B6 18		     mov dh, 24																		;; Y-coordinate of the record counter.
- 000002C6  E8 00000000 E	     call gotoxy																	;; mov cursor to above coordinates.
-
- 000002CB  A1 00000000 R	     mov eax, textColor																;;textColor is set
- 000002D0  E8 00000000 E	     call setTextColor
-
- 000002D5  BA 000000E5 R	     mov edx, OFFSET recordCounter													;;record counter is printed out
- 000002DA  E8 00000000 E	     call WriteString
-
- 000002DF  A1 00000004 R	     mov eax, blankColor
- 000002E4  E8 00000000 E	     call setTextColor
-
- 000002E9  0F B6 05		     movzx eax, counter																;;number of records in the database is printed out
+ 0000014C  B8 00000000		mov eax,0
+ 00000151  E8 00000000 E	call WriteDec
+ 00000156  0F B6 05		movzx eax, counter
 	   000000AA R
- 000002F0  E8 00000000 E	     call WriteDec
+ 0000015D  E8 00000000 E	call WriteDec
+ 00000162  58			pop eax
+
+ 00000163  C3			RET
+ 00000164			doubleDigitInt ENDP																		
+ 00000164			printEmail PROC																;;Procedure for printing out a stored email address referenced by the esi
+ 00000164  8B D6		     mov edx,esi															;;the address in the esi is moved to the edx
+ 00000166  E8 00000000 E		call WriteString	          ;;email print								;;WriteString prints out the string located in the edx
+ 0000016B  BA 00000077 R	     mov edx, OFFSET Space													;;Space printed
+ 00000170  E8 00000000 E	     call WriteString
+ 00000175  83 C6 1A			add esi, SIZEOF emailBuf+1												;;esi is updated to point to the next item in theRecords array
+ 00000178  C3			RET																			;;Return to calling proc
+ 00000179			PrintEmail ENDP
+ 00000179			printPhone PROC																;;Same as above proc
+ 00000179  8B D6		     mov edx, esi
+ 0000017B  E8 00000000 E	     call WriteString														;;phone number print
+ 00000180  BA 00000077 R	     mov edx, OFFSET Space
+ 00000185  E8 00000000 E	     call WriteString
+ 0000018A  83 C6 0F			add esi, SIZEOF phoneBuf+1
+
+ 0000018D  C3			RET
+ 0000018E			printPhone ENDP
+ 0000018E			printFirst PROC
+ 0000018E  8B D6		     mov edx, esi															;;First name print	
+ 00000190  E8 00000000 E		call WriteString    
+ 00000195  BA 00000077 R	     mov edx, OFFSET Space
+ 0000019A  E8 00000000 E	     call WriteString
+ 0000019F  83 C6 10			add esi, SIZEOF firstBuf+1
+ 000001A2  C3			RET
+ 000001A3			printFirst ENDP
+
+ 000001A3			printLast PROC
+ 000001A3  8B D6		     mov edx,esi
+ 000001A5  E8 00000000 E		call WriteString														;;Last name Print
+ 000001AA  BA 00000077 R	     mov edx, OFFSET Space
+ 000001AF  E8 00000000 E	     call WriteString
+ 000001B4  83 C6 10			add esi, SIZEOF lastBuf+1
+ 000001B7  C3			RET
+ 000001B8			printLast ENDP
+
+ 000001B8			drawPrint PROC																;;Proc to print out the formatted print out of the data in the array
+ 000001B8  B2 17		     mov dl, (80 - SIZEOF headerStr)/2										;;x and y coords are set up and the cursor is moved to the coordinate.
+ 000001BA  B6 01		     mov dh, 1										
+ 000001BC  E8 00000000 E	     call gotoxy
+
+ 000001C1  BA 00000008 R	     mov edx, OFFSET headerStr												;;address of headerStr is moved into the edx and printed out by WriteString
+ 000001C6  E8 00000000 E	     call WriteString														;;at the above coords
+
+ 000001CB  B2 03		     mov dl, 3																;;Above process is repeated below print the column headers 
+ 000001CD  B6 04		     mov dh,4
+ 000001CF  E8 00000000 E	     call gotoxy
+				     
+ 000001D4  BA 00000079 R		mov edx, OFFSET firstP
+ 000001D9  E8 00000000 E		call WriteString
+					
+ 000001DE  B2 12			mov dl, 3 + SIZEOF firstBuf
+ 000001E0  B6 04			mov dh, 4
+ 000001E2  E8 00000000 E		call gotoxy
+					
+ 000001E7  BA 00000084 R		mov edx, OFFSET lastP
+ 000001EC  E8 00000000 E		call WriteString
+
+ 000001F1  B2 21			mov dl, (3 + SIZEOF firstBuf + SIZEOF lastBuf)
+ 000001F3  B6 04			mov dh, 4
+ 000001F5  E8 00000000 E		call gotoxy
+ 000001FA  BA 0000008E R		mov edx, OFFSET phoneP
+ 000001FF  E8 00000000 E		call WriteString
+
+ 00000204  B2 2F			mov dl, (3+ SIZEOF firstBuf + SIZEOF lastBuf + SIZEOF phoneBuf)
+ 00000206  B6 04			mov dh, 4
+ 00000208  E8 00000000 E		call gotoxy
+ 0000020D  BA 0000009B R		mov edx, OFFSET emailP
+ 00000212  E8 00000000 E		call WriteString
+
+ 00000217  E8 00000000 E	     call crlf
+				     
+ 0000021C  C3			  RET
+ 0000021D			drawPrint ENDP
+
+ 0000021D			drawFields PROC															;;Proc to set up the window with text boxes and box titles for the collection of data
+																						;;from the user.
+ 0000021D  A1 00000000 R	     mov eax, textColor													;;textColor is set in prep for print out the title
+ 00000222  E8 00000000 E	     call setTextColor
+
+ 00000227  B2 17		     mov dl, (80 - SIZEOF headerStr)/2									;;cursor is moved to the xy coords of appropriate for the header string
+ 00000229  B6 01		     mov dh, 1
+ 0000022B  E8 00000000 E	     call gotoxy
+					
+ 00000230  BA 00000008 R	     mov edx, OFFSET headerStr											;;Header is printed out
+ 00000235  E8 00000000 E	     call WriteString
+ 0000023A  B2 1A		     mov dl, (80 - SIZEOF firstStr - SIZEOF fifteenSpaces)/2			;;x-y coords for the first name title
+ 0000023C  B6 04		     mov dh,4
+ 0000023E  E8 00000000 E	     call gotoxy
+
+ 00000243  BA 0000002A R	     mov edx, OFFSET firstStr
+ 00000248  E8 00000000 E	     call WriteString													;;Print first name title.
+
+ 0000024D  A1 00000004 R	     mov eax, blankColor												;;Blank color is set for the creation of pseudo text box.
+ 00000252  E8 00000000 E	     call SetTextColor
+
+ 00000257  BA 000000AC R	     mov edx, OFFSET fifteenSpaces
+ 0000025C  E8 00000000 E	     call WriteString													;;Pseudo text box printed out.
+
+ 00000261  B2 1B		     mov dl, (80 - SIZEOF lastStr - SIZEOF fifteenSpaces+1)/2			;;Same as above, but with different title
+ 00000263  B6 06		     mov dh, 6
+ 00000265  E8 00000000 E	     call gotoxy
+
+ 0000026A  A1 00000000 R	     mov eax, textColor
+ 0000026F  E8 00000000 E	     call setTextColor
+
+ 00000274  BA 00000036 R	     mov edx, OFFSET lastStr					
+ 00000279  E8 00000000 E	     call WriteString
+
+ 0000027E  A1 00000004 R	     mov eax, blankColor
+ 00000283  E8 00000000 E	     call setTextColor
+
+ 00000288  BA 000000AC R	     mov edx, OFFSET fifteenSpaces
+ 0000028D  E8 00000000 E	     call WriteString
+
+ 00000292  B2 1F		     mov dl, ((80 - SIZEOF phoneStr - SIZEOF fifteenSpaces)/2) + 3
+ 00000294  B6 08		     mov dh, 8
+ 00000296  E8 00000000 E	     call gotoxy
+
+ 0000029B  A1 00000000 R	     mov eax, textColor
+ 000002A0  E8 00000000 E	     call setTextColor
+
+ 000002A5  BA 00000041 R	     mov edx, OFFSET phoneStr
+ 000002AA  E8 00000000 E	     call WriteString						
+
+ 000002AF  A1 00000004 R	      mov eax, blankColor
+ 000002B4  E8 00000000 E	     call setTextColor
+
+ 000002B9  BA 000000BC R	     mov edx, OFFSET fourteenSpaces
+ 000002BE  E8 00000000 E	     call WriteString
+
+
+ 000002C3  B2 1F		     mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8
+ 000002C5  B6 0A		     mov dh, 10
+ 000002C7  E8 00000000 E	     call gotoxy
+
+ 000002CC  A1 00000000 R	     mov eax, textColor
+ 000002D1  E8 00000000 E	     call setTextColor
+
+ 000002D6  BA 00000048 R	     mov edx, OFFSET emailStr
+ 000002DB  E8 00000000 E	     call WriteString						
+
+ 000002E0  A1 00000004 R	      mov eax, blankColor
+ 000002E5  E8 00000000 E	     call setTextColor
+
+ 000002EA  BA 000000CB R	     mov edx, OFFSET TwentyFiveSpaces
+ 000002EF  E8 00000000 E	     call WriteString
+				     
+ 000002F4  83 F9 0A		     cmp ecx,10																		;;The value in the ecx is compared to 10
+ 000002F7  7D 13		     jge FIRSTENTRY																	;;If the value in the ecx is greater than or equal to 10, jump to FIRSTENTRY label
+				     
+ 000002F9  B2 1F		     mov dl, ((80 - SIZEOF emailStr - SIZEOF TwentyFiveSpaces)/2) + 8				;;This code is reached after one record is read in, it simply prompts the user
+ 000002FB  B6 0D		     mov dh, 13											;;to press enter to quit.
+ 000002FD  E8 00000000 E	     call gotoxy
+ 00000302  BA 0000005C R	     mov edx, OFFSET pressEnt
+ 00000307  E8 00000000 E	     call WriteString
+
+ 0000030C			FIRSTENTRY:
+ 0000030C  B2 40		     mov dl, (80 - 16)																;; X-coordinate of the record counter.
+ 0000030E  B6 18		     mov dh, 24																		;; Y-coordinate of the record counter.
+ 00000310  E8 00000000 E	     call gotoxy																	;; mov cursor to above coordinates.
+
+ 00000315  A1 00000000 R	     mov eax, textColor																;;textColor is set
+ 0000031A  E8 00000000 E	     call setTextColor
+
+ 0000031F  BA 000000E5 R	     mov edx, OFFSET recordCounter													;;record counter is printed out
+ 00000324  E8 00000000 E	     call WriteString
+
+ 00000329  A1 00000004 R	     mov eax, blankColor
+ 0000032E  E8 00000000 E	     call setTextColor
+
+ 00000333  E8 FFFFFE13		     call DoubleDigitInt
 
 				 
 				     
- 000002F5  C3			  RET
- 000002F6			drawFields ENDP
+ 00000338  C3			  RET
+ 00000339			drawFields ENDP
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/16/16 08:47:19
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/18/16 10:26:05
 Forms.asm						     Symbols 2 - 1
 
 
@@ -493,7 +522,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000413 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000002F6 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000339 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -600,17 +629,22 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-drawFields . . . . . . . . . . .	P Near	 000001D3 _TEXT	Length= 00000123 Public STDCALL
-  FIRSTENTRY . . . . . . . . . .	L Near	 000002C2 _TEXT	
-drawPrint  . . . . . . . . . . .	P Near	 0000016E _TEXT	Length= 00000065 Public STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000011A Public STDCALL
+doubleDigitInt . . . . . . . . .	P Near	 0000014B _TEXT	Length= 00000019 Public STDCALL
+doubleDigitPrint . . . . . . . .	P Near	 00000113 _TEXT	Length= 00000038 Public STDCALL
+  TEN  . . . . . . . . . . . . .	L Near	 00000128 _TEXT	
+  NOTTEN . . . . . . . . . . . .	L Near	 0000013E _TEXT	
+  DONE . . . . . . . . . . . . .	L Near	 0000014A _TEXT	
+drawFields . . . . . . . . . . .	P Near	 0000021D _TEXT	Length= 0000011C Public STDCALL
+  FIRSTENTRY . . . . . . . . . .	L Near	 0000030C _TEXT	
+drawPrint  . . . . . . . . . . .	P Near	 000001B8 _TEXT	Length= 00000065 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000113 Public STDCALL
   RDATA  . . . . . . . . . . . .	L Near	 00000019 _TEXT	
   FinishedDataEntry  . . . . . .	L Near	 0000008D _TEXT	
   PrintData  . . . . . . . . . .	L Near	 000000AD _TEXT	
-printEmail . . . . . . . . . . .	P Near	 0000011A _TEXT	Length= 00000015 Public STDCALL
-printFirst . . . . . . . . . . .	P Near	 00000144 _TEXT	Length= 00000015 Public STDCALL
-printLast  . . . . . . . . . . .	P Near	 00000159 _TEXT	Length= 00000015 Public STDCALL
-printPhone . . . . . . . . . . .	P Near	 0000012F _TEXT	Length= 00000015 Public STDCALL
+printEmail . . . . . . . . . . .	P Near	 00000164 _TEXT	Length= 00000015 Public STDCALL
+printFirst . . . . . . . . . . .	P Near	 0000018E _TEXT	Length= 00000015 Public STDCALL
+printLast  . . . . . . . . . . .	P Near	 000001A3 _TEXT	Length= 00000015 Public STDCALL
+printPhone . . . . . . . . . . .	P Near	 00000179 _TEXT	Length= 00000015 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
