@@ -214,15 +214,86 @@ db 131, 64, 138, 65, 133, 66, 125, 67, 88, 68, 89, 69, 88, 70, 89, 71, 90, 72, 9
 db 92, 74, 93, 75, 94, 76, 95, 77, 96, 78, 97, 79, 98, 80, 99, 81, 100, 82, 101, 83
 db 102, 84, 103, 85, 104, 86, 105, 87, 106, 88, 107, 89, 108, 90, 109, 91, 110, 92, 111, 93
 
-Smiley         RCC  <12,39, 1>
+Smiley         RCC  <12,39, 1>,<12,38,'*'>,<12,37,'*'>,<12,36,'+'>
 .code
 main PROC
+
+     mov eax, LENGTHOF Smiley
 	;;;;	Just a reminder how we can set the foreground and background colors
 	mov	 	eax,white + (blue*16)	
 	call	SetTextColor
 	call 	Clrscr  
      mov esi,0
-     mov ecx,1
+     mov ecx,5
+     call putSmiley
+     call readChar
+     call moveSmileyRight
+     call readChar
+;;moveTOP:
+  ;;  call moveSmileyRight
+;;mov eax, 1000
+   ;;  call delay
+;;loop moveTop
+   ;;  call putSmiley
+ ;;    call readChar
+     ;;call clearSmiley
+   ;;  call readChar
+ ;;    call putSmiley
+    
+
+
+    
+
+
+	
+	exit
+main ENDP
+moveSmileyRight PROC
+     pushad
+     
+     call clearSmiley
+     ;;;;;;; adjust Smiley
+     mov ecx, lengthof smiley -1
+     mov edi, (lengthof smiley -1)*sizeof RCC
+     mov esi, edi
+     sub edi, sizeof RCC
+
+
+RtTop:
+     mov ah,Smiley[esi].row
+     mov al,Smiley[esi].col
+     mov Smiley[edi].row,ah
+     mov Smiley[edi].col,al
+     sub edi,sizeof RCC
+     sub esi,sizeof RCC
+     loop RtTop
+     inc  Smiley.col   
+     call putSmiley
+
+     popad
+     ret
+moveSmileyRight ENDP
+clearSmiley PROC
+     pushad
+     mov ecx, lengthof smiley
+TOP:
+     mov dh,Smiley[esi].row
+     mov dl,Smiley[esi].col
+     call Gotoxy
+
+     mov al,' '
+     call WriteChar
+
+     add esi, SIZEOF RCC
+     loop TOP
+       popad
+ RET
+   
+clearSmiley ENDP
+
+putSmiley PROC
+     pushad
+     mov ecx, lengthof smiley
 TOP:
      mov dh,Smiley[esi].row
      mov dl,Smiley[esi].col
@@ -232,36 +303,10 @@ TOP:
      call WriteChar
 
      add esi, SIZEOF RCC
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;; loop TOP
-     call readChar
+     loop TOP
+     popad
 
-
-       exit
-     mov esi, OFFSET Surprise
-
-     ;;;Row Loop 24 times
-     mov ecx,24
-OUTSIDE:
-     push ecx
-     mov ecx, 80
-     mov ebx,0 ;;;;;;;;col num to sub from each char attrib
-INNER:
-     mov eax,0
-     mov al,(CharAttrib PTR [esi]).TheAttrib
-     sub eax,ebx
-     call setTextColor
-
-     mov al,(CharAttrib PTR [esi]).TheChar
-     sub eax, ebx
-     call writeChar
-     add esi,2
-     inc ebx
-     loop Inner
-     pop ecx
-     loop OUTSIDE
-
-	
-	exit
-main ENDP
+RET
+ putSmiley ENDP
 
 END main

@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/21/16 12:48:47
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/28/16 12:54:26
 Structs.asm						     Page 1 - 1
 
 
@@ -811,62 +811,107 @@ Structs.asm						     Page 1 - 1
 	   6B 59 6C 5A 6D
 	   5B 6E 5C 6F 5D
 
- 00000F00 0C 27 01		Smiley         RCC  <12,39, 1>
+ 00000F00 0C 27 01 0C 26	Smiley         RCC  <12,39, 1>,<12,38,'*'>,<12,37,'*'>,<12,36,'+'>
+	   2A 0C 25 2A 0C
+	   24 2B
  00000000			.code
  00000000			main PROC
+
+ 00000000  B8 00000004		     mov eax, LENGTHOF Smiley
 					;;;;	Just a reminder how we can set the foreground and background colors
- 00000000  B8 0000001F			mov	 	eax,white + (blue*16)	
- 00000005  E8 00000000 E		call	SetTextColor
- 0000000A  E8 00000000 E		call 	Clrscr  
- 0000000F  BE 00000000		     mov esi,0
- 00000014  B9 00000001		     mov ecx,1
- 00000019			TOP:
- 00000019  8A B6 00000F00 R	     mov dh,Smiley[esi].row
- 0000001F  8A 96 00000F01 R	     mov dl,Smiley[esi].col
- 00000025  E8 00000000 E	     call Gotoxy
+ 00000005  B8 0000001F			mov	 	eax,white + (blue*16)	
+ 0000000A  E8 00000000 E		call	SetTextColor
+ 0000000F  E8 00000000 E		call 	Clrscr  
+ 00000014  BE 00000000		     mov esi,0
+ 00000019  B9 00000005		     mov ecx,5
+ 0000001E  E8 0000007D		     call putSmiley
+ 00000023  E8 00000000 E	     call readChar
+ 00000028  E8 0000000C		     call moveSmileyRight
+ 0000002D  E8 00000000 E	     call readChar
+				;;moveTOP:
+				  ;;  call moveSmileyRight
+				;;mov eax, 1000
+				   ;;  call delay
+				;;loop moveTop
+				   ;;  call putSmiley
+				 ;;    call readChar
+				     ;;call clearSmiley
+				   ;;  call readChar
+				 ;;    call putSmiley
+				    
 
- 0000002A  8A 86 00000F02 R	     mov al,Smiley[esi].char
- 00000030  E8 00000000 E	     call WriteChar
 
- 00000035  83 C6 03		     add esi, SIZEOF RCC
-				    ;;;;;;;;;;;;;;;;;;;;;;;;;;; loop TOP
- 00000038  E8 00000000 E	     call readChar
+				    
 
-
-				       exit
- 0000003D  6A 00	   *	    push   +000000000h
- 0000003F  E8 00000000 E   *	    call   ExitProcess
- 00000044  BE 00000000 R	     mov esi, OFFSET Surprise
-
-				     ;;;Row Loop 24 times
- 00000049  B9 00000018		     mov ecx,24
- 0000004E			OUTSIDE:
- 0000004E  51			     push ecx
- 0000004F  B9 00000050		     mov ecx, 80
- 00000054  BB 00000000		     mov ebx,0 ;;;;;;;;col num to sub from each char attrib
- 00000059			INNER:
- 00000059  B8 00000000		     mov eax,0
- 0000005E  8A 46 01		     mov al,(CharAttrib PTR [esi]).TheAttrib
- 00000061  2B C3		     sub eax,ebx
- 00000063  E8 00000000 E	     call setTextColor
-
- 00000068  8A 06		     mov al,(CharAttrib PTR [esi]).TheChar
- 0000006A  2B C3		     sub eax, ebx
- 0000006C  E8 00000000 E	     call writeChar
- 00000071  83 C6 02		     add esi,2
- 00000074  43			     inc ebx
- 00000075  E2 E2		     loop Inner
- 00000077  59			     pop ecx
- 00000078  E2 D4		     loop OUTSIDE
 
 					
 					exit
- 0000007A  6A 00	   *	    push   +000000000h
- 0000007C  E8 00000000 E   *	    call   ExitProcess
- 00000081			main ENDP
+ 00000032  6A 00	   *	    push   +000000000h
+ 00000034  E8 00000000 E   *	    call   ExitProcess
+ 00000039			main ENDP
+ 00000039			moveSmileyRight PROC
+ 00000039  60			     pushad
+				     
+ 0000003A  E8 0000003C		     call clearSmiley
+				     ;;;;;;; adjust Smiley
+ 0000003F  B9 00000003		     mov ecx, lengthof smiley -1
+ 00000044  BF 00000009		     mov edi, (lengthof smiley -1)*sizeof RCC
+ 00000049  8B F7		     mov esi, edi
+ 0000004B  83 EF 03		     sub edi, sizeof RCC
+
+
+ 0000004E			RtTop:
+ 0000004E  8A A6 00000F00 R	     mov ah,Smiley[esi].row
+ 00000054  8A 86 00000F01 R	     mov al,Smiley[esi].col
+ 0000005A  88 A7 00000F00 R	     mov Smiley[edi].row,ah
+ 00000060  88 87 00000F01 R	     mov Smiley[edi].col,al
+ 00000066  83 EF 03		     sub edi,sizeof RCC
+ 00000069  83 EE 03		     sub esi,sizeof RCC
+ 0000006C  E2 E0		     loop RtTop
+ 0000006E  FE 05 00000F01 R	     inc  Smiley.col   
+ 00000074  E8 00000027		     call putSmiley
+
+ 00000079  61			     popad
+ 0000007A  C3			     ret
+ 0000007B			moveSmileyRight ENDP
+ 0000007B			clearSmiley PROC
+ 0000007B  60			     pushad
+ 0000007C  B9 00000004		     mov ecx, lengthof smiley
+ 00000081			TOP:
+ 00000081  8A B6 00000F00 R	     mov dh,Smiley[esi].row
+ 00000087  8A 96 00000F01 R	     mov dl,Smiley[esi].col
+ 0000008D  E8 00000000 E	     call Gotoxy
+
+ 00000092  B0 20		     mov al,' '
+ 00000094  E8 00000000 E	     call WriteChar
+
+ 00000099  83 C6 03		     add esi, SIZEOF RCC
+ 0000009C  E2 E3		     loop TOP
+ 0000009E  61			       popad
+ 0000009F  C3			 RET
+				   
+ 000000A0			clearSmiley ENDP
+
+ 000000A0			putSmiley PROC
+ 000000A0  60			     pushad
+ 000000A1  B9 00000004		     mov ecx, lengthof smiley
+ 000000A6			TOP:
+ 000000A6  8A B6 00000F00 R	     mov dh,Smiley[esi].row
+ 000000AC  8A 96 00000F01 R	     mov dl,Smiley[esi].col
+ 000000B2  E8 00000000 E	     call Gotoxy
+
+ 000000B7  8A 86 00000F02 R	     mov al,Smiley[esi].char
+ 000000BD  E8 00000000 E	     call WriteChar
+
+ 000000C2  83 C6 03		     add esi, SIZEOF RCC
+ 000000C5  E2 DF		     loop TOP
+ 000000C7  61			     popad
+
+ 000000C8  C3			RET
+ 000000C9			 putSmiley ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/21/16 12:48:47
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/28/16 12:54:26
 Structs.asm						     Symbols 2 - 1
 
 
@@ -967,8 +1012,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000F03 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000081 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000F0C Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000C9 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -1075,11 +1120,14 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000081 Public STDCALL
-  TOP  . . . . . . . . . . . . .	L Near	 00000019 _TEXT	
-  OUTSIDE  . . . . . . . . . . .	L Near	 0000004E _TEXT	
-  INNER  . . . . . . . . . . . .	L Near	 00000059 _TEXT	
+clearSmiley  . . . . . . . . . .	P Near	 0000007B _TEXT	Length= 00000025 Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 00000081 _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000039 Public STDCALL
+moveSmileyRight  . . . . . . . .	P Near	 00000039 _TEXT	Length= 00000042 Public STDCALL
+  RtTop  . . . . . . . . . . . .	L Near	 0000004E _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+putSmiley  . . . . . . . . . . .	P Near	 000000A0 _TEXT	Length= 00000029 Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 000000A6 _TEXT	
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
