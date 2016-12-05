@@ -1,8 +1,8 @@
-﻿Build started 11/28/2016 12:54:26 PM.
+﻿Build started 11/30/2016 12:22:25 PM.
      1>Project "Z:\CSC322\MyASMHw\StructsAndSurprise\Project.vcxproj" on node 2 (Build target(s)).
      1>_MASM:
          Assembling Structs.asm...
-         cmd.exe /C "C:\Users\schnider_ms\AppData\Local\Temp\tmpc009753d38ed49a08f61ebd5b73a16e0.cmd"
+         cmd.exe /C "C:\Users\schnider_ms\AppData\Local\Temp\tmpd8c5f6863c2545ca9db80dbf5a99c1a8.cmd"
          ml.exe /c /nologo /Sg /WX /Zi /Fo"Debug\Structs.obj" /Fl"Project.lst" /I "c:\Irvine" /W3 /errorReport:prompt  /TaStructs.asm
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Z:\CSC322\MyASMHw\StructsAndSurprise\Debug\Project.exe" /NOLOGO /LIBPATH:c:\Irvine user32.lib irvine32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"Z:\CSC322\MyASMHw\StructsAndSurprise\Debug\Project.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE:NO /IMPLIB:"Z:\CSC322\MyASMHw\StructsAndSurprise\Debug\Project.lib" /MACHINE:X86 /SAFESEH:NO Debug\Structs.obj
@@ -11,4 +11,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.93
+Time Elapsed 00:00:01.22

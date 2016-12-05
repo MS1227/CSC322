@@ -1,10 +1,12 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/30/16 08:45:42
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/30/16 11:58:19
 Happy.asm						     Page 1 - 1
 
 
 				; Happy.asm
-				; A demo using structs and our Surprise Program
+				; By: Matt Schnider
+				; A program for generating a moveable smiley face that can be used to draw simple graphics.
 				; Bob Allen
+				; CSC322
 				; Fall 2016
 
 				INCLUDE Irvine32.inc
@@ -26,7 +28,7 @@ Happy.asm						     Page 1 - 1
 			      C .LIST
 			      C 
 
- 00000003			RCC Struct                    ;;;;Row Col Char
+ 00000003			RCC Struct                    						;; Struct for keeping track of a BYTE, Row Col Char
  00000000  00			     Row       BYTE          0
  00000001  00			     Col       BYTE          0
  00000002  58			     Char      BYTE          'X'
@@ -34,244 +36,248 @@ Happy.asm						     Page 1 - 1
 
  00000000			.data
 
- 00000000 0C 27 01		Smiley         RCC  <12,39, 1>
- 00000003 20			backC          BYTE      green*16
- 00000004 01			foreC          BYTE      blue
- 00000000			.code
+ 00000000 0C 27 01		Happy         RCC  <12,39, 1>						;;Variable named Happy that uses the previously declared struct to organize the data.
+ 00000003 20			backC          BYTE      green*16					;;Variable for holding the background color
+ 00000004 01			foreC          BYTE      blue						;;Variable for holding the foreground color
+ 00000000			.code	
  00000000			main PROC
- 00000000  66| 0F BE 05			movsx ax, foreC 
+ 00000000  66| 0F BE 05			movsx ax, foreC 						;;moves the background color, sign-bit extended, into the eax reg
 	   00000004 R
- 00000008  03 05 00000003 R	     add  eax, DWORD PTR backC	
- 0000000E  E8 00000000 E		call	SetTextColor
- 00000013  E8 00000000 E		call 	Clrscr  
+ 00000008  03 05 00000003 R	     add  eax, DWORD PTR backC						;;adds the foreground color to the eax reg
+ 0000000E  E8 00000000 E		call	SetTextColor						;;proc setTextColor is called to change the colors to the val in the eax
+ 00000013  E8 00000000 E		call 	Clrscr  						;;clear screen is called to display the new colors.
  00000018  BE 00000000		     mov esi,0
 				     
- 0000001D  E8 000001A0			call setHappy
+ 0000001D  E8 000001B2			call setHappy							;;Procedure call to draw the smiley face at the middle of the screen.
  00000022			L1:
- 00000022  E8 00000000 E	     call readChar
+ 00000022  E8 00000000 E	     call readChar							;;User prompted to input a char to move Happy around.
 
- 00000027  3D 00004800		     cmp eax,4800h
- 0000002C  75 07		       jne L2
- 0000002E  E8 0000022D		       call moveForward
- 00000033  EB ED		       jmp L1
- 00000035			L2:
- 00000035  3D 00005000		     cmp eax, 5000h
- 0000003A  75 07		       jne L3
- 0000003C  E8 0000025D		       call moveBack
- 00000041  EB DF		       jmp L1
- 00000043			L3:
- 00000043  3D 00004B00		     cmp eax, 4B00h
- 00000048  75 07			jne L4
- 0000004A  E8 000001CE		       call moveLeft
- 0000004F  EB D1		       jmp L1
+ 00000027  3D 00004800		     cmp eax,4800h							;;Result of readChar in the eax is compared to the possible key presses, if one is found, the 
+ 0000002C  75 07		       jne L2								;;appropriate action is performed via a procedure call. After a proc call, the program returns to
+ 0000002E  E8 0000023F		       call moveForward							;;L1 prompting the user to press another key. This continues until the user presses either 'q' or 'Q'.
+ 00000033  EB ED		       jmp L1								;;The program then terminates.
+ 00000035			L2:									;;Possible key presses:
+ 00000035  3D 00005000		     cmp eax, 5000h							;;			left arrow	- happy moves left
+ 0000003A  75 07		       jne L3								;;			right arrow	- happy moves right
+ 0000003C  E8 0000026F		       call moveBack							;;			down arrow	- happy moves down
+ 00000041  EB DF		       jmp L1								;;			up arrow	- happy moves up
+ 00000043			L3:									;;			'c' or 'C'	- screen is cleared and happy left at last location
+ 00000043  3D 00004B00		     cmp eax, 4B00h							;;			'r'		- happy changed to color red (lowercase g and b have same effect, but green and blue respec.
+ 00000048  75 07			jne L4								;;			'R'		- happy background color changed to red (uppercase g and be have same effect, but
+ 0000004A  E8 000001E0		       call moveLeft							;;										 produce green and blue respectively.
+ 0000004F  EB D1		       jmp L1								
  00000051			L4:
  00000051  3D 00004D00		     cmp eax, 4D00h
  00000056  75 07			jne L5
- 00000058  E8 00000182		       call moveRight
+ 00000058  E8 00000194		       call moveRight
  0000005D  EB C3		       jmp L1
  0000005F			L5:
  0000005F  3D 00001071		     cmp eax, 1071h
- 00000064  75 06			jne L6    					;q exit
- 00000066  0F 84 0000008F		je LAST
+ 00000064  75 06			jne L6    					
+ 00000066  0F 84 00000093		je LAST
  0000006C			L6:
  0000006C  3D 00001051		     cmp eax, 1051h
- 00000071  75 06			jne L7					;Q exit
- 00000073  0F 84 00000082		je LAST
+ 00000071  75 06			jne L7					
+ 00000073  0F 84 00000086		je LAST
  00000079			L7:
  00000079  3D 00002E63		     cmp eax, 2E63h
  0000007E  75 07			jne L8
- 00000080  E8 00000128			call clearHappy
+ 00000080  E8 0000013A			call clearHappy
  00000085  EB 9B			jmp L1
  00000087  3D 00002E43		L8:  cmp eax, 2E43h
  0000008C  75 07			jne L9
- 0000008E  E8 0000011A			call clearHappy
+ 0000008E  E8 0000012C			call clearHappy
  00000093  EB 8D			jmp L1
  00000095  3D 00001372		L9:  cmp eax, 1372h
  0000009A  75 0A			jne L10
- 0000009C  E8 000000ED			call redHappy
+ 0000009C  E8 000000FF			call redHappy
  000000A1  E9 FFFFFF7C			jmp L1
  000000A6  3D 00001352		L10: cmp eax, 1352h
  000000AB  75 0A			jne L11
- 000000AD  E8 000000C2			call redBackground
+ 000000AD  E8 000000D4			call redBackground
  000000B2  E9 FFFFFF6B			jmp L1
  000000B7  3D 00002267		L11: cmp eax, 2267h
  000000BC  75 0A			jne L12
- 000000BE  E8 00000092			call greenHappy
+ 000000BE  E8 000000A4			call greenHappy
  000000C3  E9 FFFFFF5A			jmp L1
  000000C8  3D 00002247		L12: cmp eax, 2247h
  000000CD  75 0A			jne L13
- 000000CF  E8 00000067			call greenBackground
+ 000000CF  E8 00000079			call greenBackground
  000000D4  E9 FFFFFF49			jmp L1
  000000D9  3D 00003062		L13: cmp eax, 3062h
  000000DE  75 0A			jne L14
- 000000E0  E8 00000037			call blueHappy
+ 000000E0  E8 00000049			call blueHappy
  000000E5  E9 FFFFFF38			jmp L1
  000000EA  3D 00003042		L14: cmp eax, 3042h
- 000000EF  75 0A		     jne LAST
- 000000F1  E8 0000000C			call blueBackground
- 000000F6  E9 FFFFFF27			jmp L1
+ 000000EF  0F 85 FFFFFF2D	     jne L1
+ 000000F5  E8 0000001A			call blueBackground
+ 000000FA  E9 FFFFFF23			jmp L1
 					
- 000000FB			LAST:
+ 000000FF			LAST:
+ 000000FF  E8 00000000 E		call clrscr
+ 00000104  B2 00			mov dl, 0
+ 00000106  B6 00			mov dh, 0
+ 00000108  E8 00000000 E		call gotoxy
 					exit
- 000000FB  6A 00	   *	    push   +000000000h
- 000000FD  E8 00000000 E   *	    call   ExitProcess
- 00000102			main ENDP
+ 0000010D  6A 00	   *	    push   +000000000h
+ 0000010F  E8 00000000 E   *	    call   ExitProcess
+ 00000114			main ENDP
 
- 00000102			blueBackground PROC
-					
- 00000102  C6 05 00000003 R		mov backC, blue*16
+ 00000114			blueBackground PROC							;; Procedure for changing the background color of happy. The new color is moved into the mem location backC.
+													;; backC and foreC are then moved into the eax and call setTextColor is called to change the colors to the
+ 00000114  C6 05 00000003 R		mov backC, blue*16						;; new value. This is the logic for all background procs
 	   10
- 00000109  0F BE 05		     movsx eax, foreC
+ 0000011B  0F BE 05		     movsx eax, foreC
 	   00000004 R
- 00000110  03 05 00000003 R	     add eax, DWORD PTR backC
- 00000116  E8 00000000 E		call SetTextColor
+ 00000122  03 05 00000003 R	     add eax, DWORD PTR backC
+ 00000128  E8 00000000 E		call SetTextColor
 					
- 0000011B  C3			  RET
- 0000011C			blueBackground ENDP
- 0000011C			blueHappy PROC
- 0000011C  C6 05 00000004 R		mov foreC,blue
+ 0000012D  C3			  RET
+ 0000012E			blueBackground ENDP
+ 0000012E			blueHappy PROC								;; Procedure for changing the color of happy. The new color is moved into the mem location foreC.
+ 0000012E  C6 05 00000004 R		mov foreC,blue							;; The foreC and backC colors are moved into the eax reg and setTextColor is called to change the colors to the
 	   01
- 00000123  0F BE 05		     movsx eax, foreC
+ 00000135  0F BE 05		     movsx eax, foreC							;; new value. This is the logic for all happy color changes.
 	   00000004 R
- 0000012A  03 05 00000003 R	     add eax, DWORD PTR backC
- 00000130  E8 00000000 E		call SetTextColor
+ 0000013C  03 05 00000003 R	     add eax, DWORD PTR backC
+ 00000142  E8 00000000 E		call SetTextColor
 
- 00000135  E8 00000088			call setHappy
- 0000013A  C3			 RET
- 0000013B			blueHappy ENDP
- 0000013B			greenBackground PROC
- 0000013B  C6 05 00000003 R		mov backC, green*16
+ 00000147  E8 00000088			call setHappy
+ 0000014C  C3			 RET
+ 0000014D			blueHappy ENDP
+ 0000014D			greenBackground PROC
+ 0000014D  C6 05 00000003 R		mov backC, green*16
 	   20
- 00000142  0F BE 05		     movsx eax, foreC
+ 00000154  0F BE 05		     movsx eax, foreC
 	   00000004 R
- 00000149  03 05 00000003 R	     add eax, DWORD PTR backC
- 0000014F  E8 00000000 E		call SetTextColor
+ 0000015B  03 05 00000003 R	     add eax, DWORD PTR backC
+ 00000161  E8 00000000 E		call SetTextColor
 					
 					
- 00000154  C3			  RET
- 00000155			greenBackground ENDP
- 00000155			greenHappy PROC
- 00000155  C6 05 00000004 R	mov foreC, green
+ 00000166  C3			  RET
+ 00000167			greenBackground ENDP
+ 00000167			greenHappy PROC
+ 00000167  C6 05 00000004 R	mov foreC, green
 	   02
- 0000015C  0F BE 05		     movsx eax, foreC
+ 0000016E  0F BE 05		     movsx eax, foreC
 	   00000004 R
- 00000163  03 05 00000003 R	     add eax, DWORD PTR backC
- 00000169  E8 00000000 E		call SetTextColor
- 0000016E  E8 0000004F			call setHappy
- 00000173  C3			 RET
- 00000174			greenHappy ENDP
- 00000174			redBackground PROC
- 00000174  C6 05 00000003 R		mov backC, red*16
+ 00000175  03 05 00000003 R	     add eax, DWORD PTR backC
+ 0000017B  E8 00000000 E		call SetTextColor
+ 00000180  E8 0000004F			call setHappy
+ 00000185  C3			 RET
+ 00000186			greenHappy ENDP
+ 00000186			redBackground PROC
+ 00000186  C6 05 00000003 R		mov backC, red*16
 	   40
- 0000017B  0F BE 05		     movsx eax, foreC
+ 0000018D  0F BE 05		     movsx eax, foreC
 	   00000004 R
- 00000182  03 05 00000003 R	     add eax, DWORD PTR backC
- 00000188  E8 00000000 E		call SetTextColor
+ 00000194  03 05 00000003 R	     add eax, DWORD PTR backC
+ 0000019A  E8 00000000 E		call SetTextColor
 					
- 0000018D  C3			  RET
- 0000018E			redBackground ENDP
- 0000018E			redHappy PROC
- 0000018E  C6 05 00000004 R		mov foreC,red
+ 0000019F  C3			  RET
+ 000001A0			redBackground ENDP
+ 000001A0			redHappy PROC
+ 000001A0  C6 05 00000004 R		mov foreC,red
 	   04
- 00000195  0F BE 05		     movsx eax, foreC
+ 000001A7  0F BE 05		     movsx eax, foreC
 	   00000004 R
- 0000019C  03 05 00000003 R	     add eax, DWORD PTR backC
- 000001A2  E8 00000000 E		call SetTextColor
- 000001A7  E8 00000016			call setHappy
- 000001AC  C3			  RET
- 000001AD			redHappy ENDP
- 000001AD			clearHappy Proc
- 000001AD  B8 00000021			mov eax, blue + (green*16)
- 000001B2  E8 00000000 E		call setTextColor
- 000001B7  E8 00000000 E		call clrscr
- 000001BC  E8 00000001			call setHappy
- 000001C1  C3			  RET
- 000001C2			clearHappy ENDP
- 000001C2			setHappy PROC
- 000001C2  8A B6 00000000 R		mov dh, Smiley[esi].row
- 000001C8  8A 96 00000001 R		mov dl, Smiley[esi].col
- 000001CE  E8 00000000 E		call Gotoxy
+ 000001AE  03 05 00000003 R	     add eax, DWORD PTR backC
+ 000001B4  E8 00000000 E		call SetTextColor
+ 000001B9  E8 00000016			call setHappy
+ 000001BE  C3			  RET
+ 000001BF			redHappy ENDP
+ 000001BF			clearHappy Proc
+ 000001BF  B8 00000021			mov eax, blue + (green*16)
+ 000001C4  E8 00000000 E		call setTextColor
+ 000001C9  E8 00000000 E		call clrscr
+ 000001CE  E8 00000001			call setHappy
+ 000001D3  C3			  RET
+ 000001D4			clearHappy ENDP
+ 000001D4			setHappy PROC									;; Procedure that moves happy to the values stored x-y values currently held in memory, referenced using the
+ 000001D4  8A B6 00000000 R		mov dh, Happy[esi].row							;; struct. The row and col vals are moved into the dh and dl regs, respectively and the gotoxy proc is called.
+ 000001DA  8A 96 00000001 R		mov dl, Happy[esi].col							;; Lastly, the smiley char is written.
+ 000001E0  E8 00000000 E		call Gotoxy
 
- 000001D3  8A 86 00000002 R		mov al,Smiley[esi].char
- 000001D9  E8 00000000 E		call WriteChar
+ 000001E5  8A 86 00000002 R		mov al,Happy[esi].char
+ 000001EB  E8 00000000 E		call WriteChar
 
- 000001DE  C3			  RET
- 000001DF			setHappy ENDP
- 000001DF			moveRight PROC
-				     
- 000001DF  80 BE 00000001 R	     cmp Smiley[esi].col,79
+ 000001F0  C3			  RET
+ 000001F1			setHappy ENDP
+ 000001F1			moveRight PROC									;; Procedure that moves happy right. The current col val is compared to the right-most col value of the default window
+				     										;; size (79). If it's less than 79, a space is overwritten at happy's current location and happy is redrawn one col
+ 000001F1  80 BE 00000001 R	     cmp Happy[esi].col,79							;; right of where he was before the proc. If he is at the edge of the window, the proc does nothing.
 	   4F
- 000001E6  74 34		     je noMore
- 000001E8  B0 20		     mov al, ' '
- 000001EA  8A 96 00000001 R	     mov dl, Smiley[esi].col
- 000001F0  8A B6 00000000 R	     mov dh, Smiley[esi].row
- 000001F6  E8 00000000 E	     call gotoxy
- 000001FB  E8 00000000 E	     call WriteChar
- 00000200  FE 05 00000001 R	     inc Smiley.col
- 00000206  8A 96 00000001 R	     mov dl, Smiley[esi].col
- 0000020C  E8 00000000 E	     call gotoxy
- 00000211  8A 86 00000002 R	     mov al, Smiley[esi].char
- 00000217  E8 00000000 E	     call writeChar
- 0000021C			noMore:
- 0000021C  C3			RET
- 0000021D			moveRight ENDP
- 0000021D			moveLeft PROC
+ 000001F8  74 34		     je noMore									;; This is the logic for all move procs, with the exception of the value compared to determine if happy is at the edge of
+ 000001FA  B0 20		     mov al, ' '								;; the window. i.e. move down requires that the row val be less than 24, the last row of the default window.
+ 000001FC  8A 96 00000001 R	     mov dl, Happy[esi].col
+ 00000202  8A B6 00000000 R	     mov dh, Happy[esi].row
+ 00000208  E8 00000000 E	     call gotoxy
+ 0000020D  E8 00000000 E	     call WriteChar
+ 00000212  FE 05 00000001 R	     inc Happy.col
+ 00000218  8A 96 00000001 R	     mov dl, Happy[esi].col
+ 0000021E  E8 00000000 E	     call gotoxy
+ 00000223  8A 86 00000002 R	     mov al, Happy[esi].char
+ 00000229  E8 00000000 E	     call writeChar
+ 0000022E			noMore:
+ 0000022E  C3			RET
+ 0000022F			moveRight ENDP
+ 0000022F			moveLeft PROC
 				   
- 0000021D  80 BE 00000001 R	     cmp Smiley[esi].col,0
+ 0000022F  80 BE 00000001 R	     cmp Happy[esi].col,0
 	   00
- 00000224  74 39		     je noMore
- 00000226  E8 00000000 E	     call gotoxy
- 0000022B  B0 20		      mov al, ' '
- 0000022D  8A 96 00000001 R	     mov dl, Smiley[esi].col
- 00000233  8A B6 00000000 R	     mov dh, Smiley[esi].row
- 00000239  E8 00000000 E	     call gotoxy
- 0000023E  E8 00000000 E	     call WriteChar
- 00000243  FE 0D 00000001 R	     dec Smiley.col
- 00000249  8A 96 00000001 R	     mov dl, Smiley[esi].col
- 0000024F  E8 00000000 E	     call gotoxy
- 00000254  8A 86 00000002 R	     mov al, Smiley[esi].char
- 0000025A  E8 00000000 E	     call writeChar
- 0000025F			noMore:
- 0000025F  C3			RET
- 00000260			moveLeft ENDP
- 00000260			moveForward PROC
+ 00000236  74 39		     je noMore
+ 00000238  E8 00000000 E	     call gotoxy
+ 0000023D  B0 20		      mov al, ' '
+ 0000023F  8A 96 00000001 R	     mov dl, Happy[esi].col
+ 00000245  8A B6 00000000 R	     mov dh, Happy[esi].row
+ 0000024B  E8 00000000 E	     call gotoxy
+ 00000250  E8 00000000 E	     call WriteChar
+ 00000255  FE 0D 00000001 R	     dec Happy.col
+ 0000025B  8A 96 00000001 R	     mov dl, Happy[esi].col
+ 00000261  E8 00000000 E	     call gotoxy
+ 00000266  8A 86 00000002 R	     mov al, Happy[esi].char
+ 0000026C  E8 00000000 E	     call writeChar
+ 00000271			noMore:
+ 00000271  C3			RET
+ 00000272			moveLeft ENDP
+ 00000272			moveForward PROC
 				     
- 00000260  80 BE 00000000 R	     cmp Smiley[esi].row,0
+ 00000272  80 BE 00000000 R	     cmp Happy[esi].row,0
 	   00
- 00000267  74 34		     je noMore
- 00000269  B0 20		     mov al, ' '
- 0000026B  8A 96 00000001 R	     mov dl, Smiley[esi].col
- 00000271  8A B6 00000000 R	     mov dh, Smiley[esi].row
- 00000277  E8 00000000 E	     call gotoxy
- 0000027C  E8 00000000 E	     call WriteChar
- 00000281  FE 0D 00000000 R	     dec Smiley.row
- 00000287  8A B6 00000000 R	     mov dh, Smiley[esi].row
- 0000028D  E8 00000000 E	     call gotoxy
- 00000292  8A 86 00000002 R	     mov al, Smiley[esi].char
- 00000298  E8 00000000 E	     call writeChar
- 0000029D			noMore:
- 0000029D  C3			RET
- 0000029E			moveForward ENDP
- 0000029E			moveBack PROC
+ 00000279  74 34		     je noMore
+ 0000027B  B0 20		     mov al, ' '
+ 0000027D  8A 96 00000001 R	     mov dl, Happy[esi].col
+ 00000283  8A B6 00000000 R	     mov dh, Happy[esi].row
+ 00000289  E8 00000000 E	     call gotoxy
+ 0000028E  E8 00000000 E	     call WriteChar
+ 00000293  FE 0D 00000000 R	     dec Happy.row
+ 00000299  8A B6 00000000 R	     mov dh, Happy[esi].row
+ 0000029F  E8 00000000 E	     call gotoxy
+ 000002A4  8A 86 00000002 R	     mov al, Happy[esi].char
+ 000002AA  E8 00000000 E	     call writeChar
+ 000002AF			noMore:
+ 000002AF  C3			RET
+ 000002B0			moveForward ENDP
+ 000002B0			moveBack PROC
 				     
- 0000029E  80 BE 00000000 R	     cmp Smiley[esi].row,24
+ 000002B0  80 BE 00000000 R	     cmp Happy[esi].row,24
 	   18
- 000002A5  74 34		     je noMore
- 000002A7  B0 20		     mov al, ' '
- 000002A9  8A 96 00000001 R	     mov dl, Smiley[esi].col
- 000002AF  8A B6 00000000 R	     mov dh, Smiley[esi].row
- 000002B5  E8 00000000 E	     call gotoxy
- 000002BA  E8 00000000 E	     call WriteChar
- 000002BF  FE 05 00000000 R	     inc Smiley.row
- 000002C5  8A B6 00000000 R	     mov dh, Smiley[esi].row
- 000002CB  E8 00000000 E	     call gotoxy
- 000002D0  8A 86 00000002 R	     mov al, Smiley[esi].char
- 000002D6  E8 00000000 E	     call writeChar
- 000002DB			noMore:
- 000002DB  C3			RET
- 000002DC			moveBack ENDP
+ 000002B7  74 34		     je noMore
+ 000002B9  B0 20		     mov al, ' '
+ 000002BB  8A 96 00000001 R	     mov dl, Happy[esi].col
+ 000002C1  8A B6 00000000 R	     mov dh, Happy[esi].row
+ 000002C7  E8 00000000 E	     call gotoxy
+ 000002CC  E8 00000000 E	     call WriteChar
+ 000002D1  FE 05 00000000 R	     inc Happy.row
+ 000002D7  8A B6 00000000 R	     mov dh, Happy[esi].row
+ 000002DD  E8 00000000 E	     call gotoxy
+ 000002E2  8A 86 00000002 R	     mov al, Happy[esi].char
+ 000002E8  E8 00000000 E	     call writeChar
+ 000002ED			noMore:
+ 000002ED  C3			RET
+ 000002EE			moveBack ENDP
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/30/16 08:45:42
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    11/30/16 11:58:19
 Happy.asm						     Symbols 2 - 1
 
 
@@ -370,7 +376,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000005 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000002DC Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000002EE Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -477,12 +483,12 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-blueBackground . . . . . . . . .	P Near	 00000102 _TEXT	Length= 0000001A Public STDCALL
-blueHappy  . . . . . . . . . . .	P Near	 0000011C _TEXT	Length= 0000001F Public STDCALL
-clearHappy . . . . . . . . . . .	P Near	 000001AD _TEXT	Length= 00000015 Public STDCALL
-greenBackground  . . . . . . . .	P Near	 0000013B _TEXT	Length= 0000001A Public STDCALL
-greenHappy . . . . . . . . . . .	P Near	 00000155 _TEXT	Length= 0000001F Public STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000102 Public STDCALL
+blueBackground . . . . . . . . .	P Near	 00000114 _TEXT	Length= 0000001A Public STDCALL
+blueHappy  . . . . . . . . . . .	P Near	 0000012E _TEXT	Length= 0000001F Public STDCALL
+clearHappy . . . . . . . . . . .	P Near	 000001BF _TEXT	Length= 00000015 Public STDCALL
+greenBackground  . . . . . . . .	P Near	 0000014D _TEXT	Length= 0000001A Public STDCALL
+greenHappy . . . . . . . . . . .	P Near	 00000167 _TEXT	Length= 0000001F Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000114 Public STDCALL
   L1 . . . . . . . . . . . . . .	L Near	 00000022 _TEXT	
   L2 . . . . . . . . . . . . . .	L Near	 00000035 _TEXT	
   L3 . . . . . . . . . . . . . .	L Near	 00000043 _TEXT	
@@ -497,20 +503,20 @@ main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000102 Public 
   L12  . . . . . . . . . . . . .	L Near	 000000C8 _TEXT	
   L13  . . . . . . . . . . . . .	L Near	 000000D9 _TEXT	
   L14  . . . . . . . . . . . . .	L Near	 000000EA _TEXT	
-  LAST . . . . . . . . . . . . .	L Near	 000000FB _TEXT	
-moveBack . . . . . . . . . . . .	P Near	 0000029E _TEXT	Length= 0000003E Public STDCALL
-  noMore . . . . . . . . . . . .	L Near	 000002DB _TEXT	
-moveForward  . . . . . . . . . .	P Near	 00000260 _TEXT	Length= 0000003E Public STDCALL
-  noMore . . . . . . . . . . . .	L Near	 0000029D _TEXT	
-moveLeft . . . . . . . . . . . .	P Near	 0000021D _TEXT	Length= 00000043 Public STDCALL
-  noMore . . . . . . . . . . . .	L Near	 0000025F _TEXT	
-moveRight  . . . . . . . . . . .	P Near	 000001DF _TEXT	Length= 0000003E Public STDCALL
-  noMore . . . . . . . . . . . .	L Near	 0000021C _TEXT	
+  LAST . . . . . . . . . . . . .	L Near	 000000FF _TEXT	
+moveBack . . . . . . . . . . . .	P Near	 000002B0 _TEXT	Length= 0000003E Public STDCALL
+  noMore . . . . . . . . . . . .	L Near	 000002ED _TEXT	
+moveForward  . . . . . . . . . .	P Near	 00000272 _TEXT	Length= 0000003E Public STDCALL
+  noMore . . . . . . . . . . . .	L Near	 000002AF _TEXT	
+moveLeft . . . . . . . . . . . .	P Near	 0000022F _TEXT	Length= 00000043 Public STDCALL
+  noMore . . . . . . . . . . . .	L Near	 00000271 _TEXT	
+moveRight  . . . . . . . . . . .	P Near	 000001F1 _TEXT	Length= 0000003E Public STDCALL
+  noMore . . . . . . . . . . . .	L Near	 0000022E _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-redBackground  . . . . . . . . .	P Near	 00000174 _TEXT	Length= 0000001A Public STDCALL
-redHappy . . . . . . . . . . . .	P Near	 0000018E _TEXT	Length= 0000001F Public STDCALL
+redBackground  . . . . . . . . .	P Near	 00000186 _TEXT	Length= 0000001A Public STDCALL
+redHappy . . . . . . . . . . . .	P Near	 000001A0 _TEXT	Length= 0000001F Public STDCALL
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-setHappy . . . . . . . . . . . .	P Near	 000001C2 _TEXT	Length= 0000001D Public STDCALL
+setHappy . . . . . . . . . . . .	P Near	 000001D4 _TEXT	Length= 0000001D Public STDCALL
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -582,6 +588,7 @@ HEAP_GROWABLE  . . . . . . . . .	Number	 00000002h
 HEAP_NO_SERIALIZE  . . . . . . .	Number	 00000001h   
 HEAP_REALLOC_IN_PLACE_ONLY . . .	Number	 00000010h   
 HEAP_ZERO_MEMORY . . . . . . . .	Number	 00000008h   
+Happy  . . . . . . . . . . . . .	RCC	 00000000 _DATA	
 IDABORT  . . . . . . . . . . . .	Number	 00000003h   
 IDCANCEL . . . . . . . . . . . .	Number	 00000002h   
 IDCLOSE  . . . . . . . . . . . .	Number	 00000008h   
@@ -643,7 +650,6 @@ STD_ERROR_HANDLE . . . . . . . .	Number	 -0000000Ch
 STD_INPUT_HANDLE . . . . . . . .	Number	 -0000000Ah   
 STD_OUTPUT_HANDLE  . . . . . . .	Number	 -0000000Bh   
 SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
-Smiley . . . . . . . . . . . . .	RCC	 00000000 _DATA	
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
