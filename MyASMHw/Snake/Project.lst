@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    12/05/16 18:46:11
+Microsoft (R) Macro Assembler Version 12.00.31101.0	    12/06/16 10:19:40
 Snake.asm						     Page 1 - 1
 
 
@@ -39,193 +39,291 @@ Snake.asm						     Page 1 - 1
 	    00 00 00
 	   ]
  0000026A 04			currSize       BYTE            04h
- 0000026B 000001F4		time           DWORD            500
- 0000026F 00004D00		keyPress       DWORD           4D00h
+ 0000026B 000001F4		time           DWORD           500
+ 0000026F 4D00			keyPress       WORD          4D00h
  00000000			.code
 
 
  00000000			main PROC
- 00000000  E8 000001AF		   call drawSnake
+
+ 00000000  E8 00000302		   call drawSnake
  00000005			TOP:
- 00000005  E8 00000000 E	     call ReadKey
- 0000000A  75 02		     jnz PRESS
- 0000000C  EB 05		     jmp NEXT
- 0000000E			PRESS:
- 0000000E  E8 00000028		     call processKey
- 00000013			NEXT:
- 00000013  81 3D 0000026F R	     cmp keyPress, 4D00h
-	   00004D00
- 0000001D  74 00		     je RIGHT
-				        
- 0000001F			     RIGHT:
-				       
- 0000001F  75 13		       jnz QUIT 
- 00000021  E8 00000131		       call moveSnakeRight
- 00000026  A1 0000026B R	       mov eax, time
- 0000002B  E8 00000000 E	       call delay
- 00000030  EB ED		       jmp RIGHT
- 00000032  EB D1		jmp TOP
- 00000034			QUIT:
+ 00000005  E8 00000000 E	   call Readkey
+ 0000000A  75 02		   jnz pressEvent
+ 0000000C  EB 05			jmp L1
+
+ 0000000E			pressEvent:
+ 0000000E  E8 00000157			call processKey
+					
+ 00000013  66| 81 3D		L1:	cmp keyPress, 4D00h
+	   0000026F R
+	   4D00
+ 0000001C  75 11			jne L2
+ 0000001E  E8 00000287			call moveSnakeRight
+ 00000023  A1 0000026B R		mov eax, time
+ 00000028  E8 00000000 E		call delay
+ 0000002D  EB D6			jmp Top
+ 0000002F  66| 81 3D		L2: cmp keyPress, 4B00h
+	   0000026F R
+	   4B00
+ 00000038  75 11			jne L3
+ 0000003A  E8 0000019F			call moveSnakeLeft
+ 0000003F  A1 0000026B R		mov eax, time
+ 00000044  E8 00000000 E		call delay
+ 00000049  EB BA			jmp TOP
+ 0000004B  66| 81 3D		L3: cmp keyPress, 5000h
+	   0000026F R
+	   5000
+ 00000054  75 11			jne L4
+ 00000056  E8 000001E9			call moveSnakeDown
+ 0000005B  A1 0000026B R		mov eax, time
+ 00000060  E8 00000000 E		call delay
+ 00000065  EB 9E			jmp TOP
+ 00000067  66| 81 3D		L4: cmp keyPress, 4800h
+	   0000026F R
+	   4800
+ 00000070  75 11			jne L5
+ 00000072  E8 00000101			call moveSnakeUp
+ 00000077  A1 0000026B R		mov eax, time
+ 0000007C  E8 00000000 E		call delay
+ 00000081  EB 82			jmp TOP
+ 00000083  66| 81 3D		L5: cmp keyPress, 4E2Bh
+	   0000026F R
+	   4E2B
+ 0000008C  75 1C			jne L6
+ 0000008E  83 3D 0000026B R		cmp time, 0
+	   00
+ 00000095  74 07			je NOLESS
+ 00000097  83 2D 0000026B R		sub time, 100
+	   64
+ 0000009E			NOLESS:
+ 0000009E  66| 89 1D			mov keypress, bx
+	   0000026F R
+ 000000A5  E9 FFFFFF5B			jmp TOP
+ 000000AA  66| 81 3D		L6: cmp keyPress, 4A2Dh
+	   0000026F R
+	   4A2D
+ 000000B3  75 1F			jne L7
+ 000000B5  81 3D 0000026B R		cmp time, 1000
+	   000003E8
+ 000000BF  74 07			je NOMORE
+ 000000C1  83 05 0000026B R		add time, 100
+	   64
+ 000000C8			NOMORE:
+ 000000C8  66| 89 1D			mov keypress, bx
+	   0000026F R
+ 000000CF  E9 FFFFFF31			jmp TOP
+ 000000D4  66| 81 3D		L7: cmp keyPress, 372Ah
+	   0000026F R
+	   372A
+ 000000DD  75 1E			jne L8
+ 000000DF  80 3D 0000026A R		cmp currSize, 205
+	   CD
+ 000000E6  0F 84 FFFFFF19		je Top
+ 000000EC  E8 0000002D			call growSnake
+ 000000F1  66| 89 1D			mov keypress, bx
+	   0000026F R
+ 000000F8  E9 FFFFFF08			jmp Top
+ 000000FD  66| 81 3D		L8: cmp keyPress, 1051h
+	   0000026F R
+	   1051
+ 00000106  74 0F			je QUIT
+ 00000108  66| 81 3D		L9: cmp keyPress, 1071h
+	   0000026F R
+	   1071
+ 00000111  0F 85 FFFFFEEE		jne TOP
+					
+ 00000117			QUIT:
+					
 				     exit
- 00000034  6A 00	   *	    push   +000000000h
- 00000036  E8 00000000 E   *	    call   ExitProcess
- 0000003B			main ENDP
-
- 0000003B			processKey PROC
- 0000003B  3C 00		     cmp al,0
- 0000003D  74 00		     je L1
- 0000003F			L1:
-				     
-
- 0000003F  C3			     RET
- 00000040			ProcessKey ENDP
- 00000040			moveSnakeUp PROC
- 00000040  60			     pushad
- 00000041  E8 00000000 E	     call clrscr
- 00000046  A0 0000026A R	     mov al, currSize
- 0000004B  B2 03		     mov dl, sizeOF RCC
- 0000004D  F6 E2		     mul dl
- 0000004F  66| 83 E8 03		     sub ax, sizeOF RCC
- 00000053  0F B7 F0		     movzx esi, ax 
- 00000056  80 BE 00000000 R	     cmp snake[esi].row, 0
+ 00000117  6A 00	   *	    push   +000000000h
+ 00000119  E8 00000000 E   *	    call   ExitProcess
+ 0000011E			main ENDP
+ 0000011E			growSnake PROC
+ 0000011E  60			pushad
+ 0000011F  A0 0000026A R		 mov al, currSize
+ 00000124  B2 03		     mov dl, sizeOF RCC
+ 00000126  F6 E2		     mul dl
+ 00000128  66| 83 E8 03		     sub ax, sizeOF RCC
+ 0000012C  0F B7 F0		     movzx esi, ax
+ 0000012F  8A 9E 00000001 R		 mov bl, snake[esi].col
+ 00000135  8A BE 00000000 R		 mov bh, snake[esi].row
+ 0000013B  8A 96 00000002 R		 mov dl, snake[esi].char
+ 00000141  C6 86 00000002 R		 mov snake[esi].char, '*'
+	   2A
+ 00000148  83 C6 03			 add esi, sizeOF RCC
+ 0000014B  88 9E 00000001 R		 mov snake[esi].col,bl
+ 00000151  88 BE 00000000 R		 mov snake[esi].row,bh
+ 00000157  88 96 00000002 R		 mov snake[esi].char, dl
+ 0000015D  FE 05 0000026A R		 inc currSize
+ 00000163  E8 0000019F			 call drawSnake 
+ 00000168  61			popad
+ 00000169  C3			 ret
+ 0000016A			growSnake ENDP
+ 0000016A			processKey PROC
+ 0000016A  66| 8B 1D			mov bx, keypress
+	   0000026F R
+ 00000171  66| A3			mov keypress, ax
+	   0000026F R
+					
+ 00000177  C3			     RET
+ 00000178			ProcessKey ENDP
+ 00000178			moveSnakeUp PROC
+ 00000178  60			     pushad
+ 00000179  E8 00000000 E	     call clrscr
+ 0000017E  66| C7 05			 mov keyPress, 4800h
+	   0000026F R
+	   4800
+ 00000187  A0 0000026A R	     mov al, currSize
+ 0000018C  B2 03		     mov dl, sizeOF RCC
+ 0000018E  F6 E2		     mul dl
+ 00000190  66| 83 E8 03		     sub ax, sizeOF RCC
+ 00000194  0F B7 F0		     movzx esi, ax 
+ 00000197  80 BE 00000000 R	     cmp snake[esi].row, 0
 	   00
- 0000005D  74 32		     je TURN
- 0000005F  8A 9E 00000001 R	     mov bl, snake[esi].col
- 00000065  8A BE 00000000 R	     mov bh, snake[esi].row
- 0000006B  FE 8E 00000000 R	     dec snake[esi].row
- 00000071  83 EE 03		     sub esi, sizeOf RCC
- 00000074  2B C9		     sub ecx,ecx
- 00000076  8A 0D 0000026A R	     mov cl, currSize
- 0000007C  FE C9		     dec cl
- 0000007E			TOP:
- 0000007E  86 9E 00000001 R	     XCHG bl,snake[esi].col
- 00000084  86 BE 00000000 R	     XCHG bh,snake[esi].row
- 0000008A  83 EE 03		     sub esi, sizeOF RCC
+ 0000019E  74 32		     je TURN
+ 000001A0  8A 9E 00000001 R	     mov bl, snake[esi].col
+ 000001A6  8A BE 00000000 R	     mov bh, snake[esi].row
+ 000001AC  FE 8E 00000000 R	     dec snake[esi].row
+ 000001B2  83 EE 03		     sub esi, sizeOf RCC
+ 000001B5  2B C9		     sub ecx,ecx
+ 000001B7  8A 0D 0000026A R	     mov cl, currSize
+ 000001BD  FE C9		     dec cl
+ 000001BF			TOP:
+ 000001BF  86 9E 00000001 R	     XCHG bl,snake[esi].col
+ 000001C5  86 BE 00000000 R	     XCHG bh,snake[esi].row
+ 000001CB  83 EE 03		     sub esi, sizeOF RCC
 
- 0000008D  E2 EF		     loop Top
- 0000008F  EB 05		     jmp NOTURN
- 00000091			TURN:
- 00000091  E8 000000C1		     call moveSnakeRight
- 00000096			NOTURN:
- 00000096  E8 00000119		 call drawSnake
- 0000009B  61			     popad
- 0000009C  C3			     RET
- 0000009D			moveSnakeUp ENDP
- 0000009D			moveSnakeLeft PROC
- 0000009D  60			     pushad
- 0000009E  E8 00000000 E	     call clrscr
- 000000A3  A0 0000026A R	     mov al, currSize
- 000000A8  B2 03		     mov dl, sizeOF RCC
- 000000AA  F6 E2		     mul dl
- 000000AC  66| 83 E8 03		     sub ax, sizeOF RCC
- 000000B0  0F B7 F0		     movzx esi, ax 
- 000000B3  80 BE 00000001 R	     cmp snake[esi].col, 0
+ 000001CE  E2 EF		     loop Top
+ 000001D0  EB 05		     jmp NOTURN
+ 000001D2			TURN:
+ 000001D2  E8 000000D3		     call moveSnakeRight
+ 000001D7			NOTURN:
+ 000001D7  E8 0000012B		 call drawSnake
+ 000001DC  61			     popad
+ 000001DD  C3			     RET
+ 000001DE			moveSnakeUp ENDP
+ 000001DE			moveSnakeLeft PROC
+ 000001DE  60			     pushad
+ 000001DF  E8 00000000 E	     call clrscr
+ 000001E4  66| C7 05			 mov keyPress, 4B00h
+	   0000026F R
+	   4B00
+ 000001ED  A0 0000026A R	     mov al, currSize
+ 000001F2  B2 03		     mov dl, sizeOF RCC
+ 000001F4  F6 E2		     mul dl
+ 000001F6  66| 83 E8 03		     sub ax, sizeOF RCC
+ 000001FA  0F B7 F0		     movzx esi, ax 
+ 000001FD  80 BE 00000001 R	     cmp snake[esi].col, 0
 	   00
- 000000BA  74 32		     je TURN
- 000000BC  8A 9E 00000001 R	     mov bl, snake[esi].col
- 000000C2  8A BE 00000000 R	     mov bh, snake[esi].row
- 000000C8  FE 8E 00000001 R	     dec snake[esi].col
- 000000CE  83 EE 03		     sub esi, sizeOf RCC
- 000000D1  2B C9		     sub ecx,ecx
- 000000D3  8A 0D 0000026A R	     mov cl, currSize
- 000000D9  FE C9		     dec cl
- 000000DB			TOP:
- 000000DB  86 9E 00000001 R	     XCHG bl,snake[esi].col
- 000000E1  86 BE 00000000 R	     XCHG bh,snake[esi].row
- 000000E7  83 EE 03		     sub esi, sizeOF RCC
+ 00000204  74 32		     je TURN
+ 00000206  8A 9E 00000001 R	     mov bl, snake[esi].col
+ 0000020C  8A BE 00000000 R	     mov bh, snake[esi].row
+ 00000212  FE 8E 00000001 R	     dec snake[esi].col
+ 00000218  83 EE 03		     sub esi, sizeOf RCC
+ 0000021B  2B C9		     sub ecx,ecx
+ 0000021D  8A 0D 0000026A R	     mov cl, currSize
+ 00000223  FE C9		     dec cl
+ 00000225			TOP:
+ 00000225  86 9E 00000001 R	     XCHG bl,snake[esi].col
+ 0000022B  86 BE 00000000 R	     XCHG bh,snake[esi].row
+ 00000231  83 EE 03		     sub esi, sizeOF RCC
 
- 000000EA  E2 EF		     loop Top
- 000000EC  EB 05		     jmp NOTURN
- 000000EE			TURN:
- 000000EE  E8 FFFFFFAA		     call moveSnakeLeft
- 000000F3			NOTURN:
- 000000F3  E8 000000BC		 call drawSnake
- 000000F8  61			     popad
- 000000F9  C3			     RET
- 000000FA			moveSnakeLeft ENDP
- 000000FA			moveSnakeDown PROC
- 000000FA  60			     pushad
- 000000FB  E8 00000000 E	     call clrscr
- 00000100  A0 0000026A R	     mov al, currSize
- 00000105  B2 03		     mov dl, sizeOF RCC
- 00000107  F6 E2		     mul dl
- 00000109  66| 83 E8 03		     sub ax, sizeOF RCC
- 0000010D  0F B7 F0		     movzx esi, ax 
- 00000110  80 BE 00000000 R	     cmp snake[esi].row, 24
+ 00000234  E2 EF		     loop Top
+ 00000236  EB 05		     jmp NOTURN
+ 00000238			TURN:
+ 00000238  E8 FFFFFF3B		     call moveSnakeUp
+ 0000023D			NOTURN:
+ 0000023D  E8 000000C5		 call drawSnake
+ 00000242  61			     popad
+ 00000243  C3			     RET
+ 00000244			moveSnakeLeft ENDP
+ 00000244			moveSnakeDown PROC
+ 00000244  60			     pushad
+ 00000245  E8 00000000 E	     call clrscr
+ 0000024A  66| C7 05			 mov keyPress, 5000h
+	   0000026F R
+	   5000
+ 00000253  A0 0000026A R	     mov al, currSize
+ 00000258  B2 03		     mov dl, sizeOF RCC
+ 0000025A  F6 E2		     mul dl
+ 0000025C  66| 83 E8 03		     sub ax, sizeOF RCC
+ 00000260  0F B7 F0		     movzx esi, ax 
+ 00000263  80 BE 00000000 R	     cmp snake[esi].row, 24
 	   18
- 00000117  74 32		     je TURN
- 00000119  8A 9E 00000001 R	     mov bl, snake[esi].col
- 0000011F  8A BE 00000000 R	     mov bh, snake[esi].row
- 00000125  FE 86 00000000 R	     inc snake[esi].row
- 0000012B  83 EE 03		     sub esi, sizeOf RCC
- 0000012E  2B C9		     sub ecx,ecx
- 00000130  8A 0D 0000026A R	     mov cl, currSize
- 00000136  FE C9		     dec cl
- 00000138			TOP:
- 00000138  86 9E 00000001 R	     XCHG bl,snake[esi].col
- 0000013E  86 BE 00000000 R	     XCHG bh,snake[esi].row
- 00000144  83 EE 03		     sub esi, sizeOF RCC
+ 0000026A  74 32		     je TURN
+ 0000026C  8A 9E 00000001 R	     mov bl, snake[esi].col
+ 00000272  8A BE 00000000 R	     mov bh, snake[esi].row
+ 00000278  FE 86 00000000 R	     inc snake[esi].row
+ 0000027E  83 EE 03		     sub esi, sizeOf RCC
+ 00000281  2B C9		     sub ecx,ecx
+ 00000283  8A 0D 0000026A R	     mov cl, currSize
+ 00000289  FE C9		     dec cl
+ 0000028B			TOP:
+ 0000028B  86 9E 00000001 R	     XCHG bl,snake[esi].col
+ 00000291  86 BE 00000000 R	     XCHG bh,snake[esi].row
+ 00000297  83 EE 03		     sub esi, sizeOF RCC
 
- 00000147  E2 EF		     loop Top
- 00000149  EB 05		     jmp NOTURN
- 0000014B			TURN:
- 0000014B  E8 FFFFFF4D		     call moveSnakeLeft
- 00000150			NOTURN:
- 00000150  E8 0000005F		 call drawSnake
- 00000155  61			     popad
- 00000156  C3			     RET
- 00000157			moveSnakeDown ENDP
- 00000157			moveSnakeRight PROC
- 00000157  60			     pushad
- 00000158  E8 00000000 E	     call clrscr
- 0000015D  A0 0000026A R	     mov al, currSize
- 00000162  B2 03		     mov dl, sizeOF RCC
- 00000164  F6 E2		     mul dl
- 00000166  66| 83 E8 03		     sub ax, sizeOF RCC
- 0000016A  0F B7 F0		     movzx esi, ax 
- 0000016D  80 BE 00000001 R	     cmp snake[esi].col, 79
+ 0000029A  E2 EF		     loop Top
+ 0000029C  EB 05		     jmp NOTURN
+ 0000029E			TURN:
+ 0000029E  E8 FFFFFF3B		     call moveSnakeLeft
+ 000002A3			NOTURN:
+ 000002A3  E8 0000005F		 call drawSnake
+ 000002A8  61			     popad
+ 000002A9  C3			     RET
+ 000002AA			moveSnakeDown ENDP
+ 000002AA			moveSnakeRight PROC
+ 000002AA  60			     pushad
+ 000002AB  E8 00000000 E	     call clrscr
+ 000002B0  A0 0000026A R	     mov al, currSize
+ 000002B5  B2 03		     mov dl, sizeOF RCC
+ 000002B7  F6 E2		     mul dl
+ 000002B9  66| 83 E8 03		     sub ax, sizeOF RCC
+ 000002BD  0F B7 F0		     movzx esi, ax 
+ 000002C0  80 BE 00000001 R	     cmp snake[esi].col, 79
 	   4F
- 00000174  74 32		     je TURN
- 00000176  8A 9E 00000001 R	     mov bl, snake[esi].col
- 0000017C  8A BE 00000000 R	     mov bh, snake[esi].row
- 00000182  FE 86 00000001 R	     inc snake[esi].col
- 00000188  83 EE 03		     sub esi, sizeOf RCC
- 0000018B  2B C9		     sub ecx,ecx
- 0000018D  8A 0D 0000026A R	     mov cl, currSize
- 00000193  FE C9		     dec cl
- 00000195			TOP:
- 00000195  86 9E 00000001 R	     XCHG bl,snake[esi].col
- 0000019B  86 BE 00000000 R	     XCHG bh,snake[esi].row
- 000001A1  83 EE 03		     sub esi, sizeOF RCC
+ 000002C7  74 32		     je TURN
+ 000002C9  8A 9E 00000001 R	     mov bl, snake[esi].col
+ 000002CF  8A BE 00000000 R	     mov bh, snake[esi].row
+ 000002D5  FE 86 00000001 R	     inc snake[esi].col
+ 000002DB  83 EE 03		     sub esi, sizeOf RCC
+ 000002DE  2B C9		     sub ecx,ecx
+ 000002E0  8A 0D 0000026A R	     mov cl, currSize
+ 000002E6  FE C9		     dec cl
+ 000002E8			TOP:
+ 000002E8  86 9E 00000001 R	     XCHG bl,snake[esi].col
+ 000002EE  86 BE 00000000 R	     XCHG bh,snake[esi].row
+ 000002F4  83 EE 03		     sub esi, sizeOF RCC
 
- 000001A4  E2 EF		     loop Top
- 000001A6  EB 05		     jmp NOTURN
- 000001A8			TURN:
- 000001A8  E8 FFFFFF4D		     call moveSnakeDown
- 000001AD			NOTURN:
- 000001AD  E8 00000002		 call drawSnake
- 000001B2  61			     popad
- 000001B3  C3			     RET
- 000001B4			moveSnakeRight ENDP
- 000001B4			drawSnake PROC
- 000001B4  60			   pushad
- 000001B5  BE 00000000		   mov esi, 0
- 000001BA  0F B6 0D		   movzx ecx, currSize
+ 000002F7  E2 EF		     loop Top
+ 000002F9  EB 05		     jmp NOTURN
+ 000002FB			TURN:
+ 000002FB  E8 FFFFFF44		     call moveSnakeDown
+ 00000300			NOTURN:
+ 00000300  E8 00000002		 call drawSnake
+ 00000305  61			     popad
+ 00000306  C3			     RET
+ 00000307			moveSnakeRight ENDP
+ 00000307			drawSnake PROC
+ 00000307  60			   pushad
+ 00000308  BE 00000000		   mov esi, 0
+ 0000030D  0F B6 0D		   movzx ecx, currSize
 	   0000026A R
- 000001C1			TOP:
- 000001C1  8A B6 00000000 R	          mov dh, snake[esi].row
- 000001C7  8A 96 00000001 R	          mov dl, snake[esi].col
- 000001CD  E8 00000000 E	          call gotoxy
- 000001D2  8A 86 00000002 R	          mov al, snake[esi].char
- 000001D8  E8 00000000 E	          call writeChar
- 000001DD  83 C6 03		          add esi,sizeOf rcc
- 000001E0  E2 DF		          loop TOP
- 000001E2  61			     popad
- 000001E3  C3			   Ret
- 000001E4			drawSnake ENDP
+ 00000314			TOP:
+ 00000314  8A B6 00000000 R	          mov dh, snake[esi].row
+ 0000031A  8A 96 00000001 R	          mov dl, snake[esi].col
+ 00000320  E8 00000000 E	          call gotoxy
+ 00000325  8A 86 00000002 R	          mov al, snake[esi].char
+ 0000032B  E8 00000000 E	          call writeChar
+ 00000330  83 C6 03		          add esi,sizeOf rcc
+ 00000333  E2 DF		          loop TOP
+ 00000335  61			     popad
+ 00000336  C3			   Ret
+ 00000337			drawSnake ENDP
 
 				end main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    12/05/16 18:46:11
+Microsoft (R) Macro Assembler Version 12.00.31101.0	    12/06/16 10:19:40
 Snake.asm						     Symbols 2 - 1
 
 
@@ -323,8 +421,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000273 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000001E4 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000271 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000337 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -431,33 +529,42 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-drawSnake  . . . . . . . . . . .	P Near	 000001B4 _TEXT	Length= 00000030 Public STDCALL
-  TOP  . . . . . . . . . . . . .	L Near	 000001C1 _TEXT	
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000003B Public STDCALL
+drawSnake  . . . . . . . . . . .	P Near	 00000307 _TEXT	Length= 00000030 Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 00000314 _TEXT	
+growSnake  . . . . . . . . . . .	P Near	 0000011E _TEXT	Length= 0000004C Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000011E Public STDCALL
   TOP  . . . . . . . . . . . . .	L Near	 00000005 _TEXT	
-  PRESS  . . . . . . . . . . . .	L Near	 0000000E _TEXT	
-  NEXT . . . . . . . . . . . . .	L Near	 00000013 _TEXT	
-  RIGHT  . . . . . . . . . . . .	L Near	 0000001F _TEXT	
-  QUIT . . . . . . . . . . . . .	L Near	 00000034 _TEXT	
-moveSnakeDown  . . . . . . . . .	P Near	 000000FA _TEXT	Length= 0000005D Public STDCALL
-  TOP  . . . . . . . . . . . . .	L Near	 00000138 _TEXT	
-  TURN . . . . . . . . . . . . .	L Near	 0000014B _TEXT	
-  NOTURN . . . . . . . . . . . .	L Near	 00000150 _TEXT	
-moveSnakeLeft  . . . . . . . . .	P Near	 0000009D _TEXT	Length= 0000005D Public STDCALL
-  TOP  . . . . . . . . . . . . .	L Near	 000000DB _TEXT	
-  TURN . . . . . . . . . . . . .	L Near	 000000EE _TEXT	
-  NOTURN . . . . . . . . . . . .	L Near	 000000F3 _TEXT	
-moveSnakeRight . . . . . . . . .	P Near	 00000157 _TEXT	Length= 0000005D Public STDCALL
-  TOP  . . . . . . . . . . . . .	L Near	 00000195 _TEXT	
-  TURN . . . . . . . . . . . . .	L Near	 000001A8 _TEXT	
-  NOTURN . . . . . . . . . . . .	L Near	 000001AD _TEXT	
-moveSnakeUp  . . . . . . . . . .	P Near	 00000040 _TEXT	Length= 0000005D Public STDCALL
-  TOP  . . . . . . . . . . . . .	L Near	 0000007E _TEXT	
-  TURN . . . . . . . . . . . . .	L Near	 00000091 _TEXT	
-  NOTURN . . . . . . . . . . . .	L Near	 00000096 _TEXT	
+  pressEvent . . . . . . . . . .	L Near	 0000000E _TEXT	
+  L1 . . . . . . . . . . . . . .	L Near	 00000013 _TEXT	
+  L2 . . . . . . . . . . . . . .	L Near	 0000002F _TEXT	
+  L3 . . . . . . . . . . . . . .	L Near	 0000004B _TEXT	
+  L4 . . . . . . . . . . . . . .	L Near	 00000067 _TEXT	
+  L5 . . . . . . . . . . . . . .	L Near	 00000083 _TEXT	
+  NOLESS . . . . . . . . . . . .	L Near	 0000009E _TEXT	
+  L6 . . . . . . . . . . . . . .	L Near	 000000AA _TEXT	
+  NOMORE . . . . . . . . . . . .	L Near	 000000C8 _TEXT	
+  L7 . . . . . . . . . . . . . .	L Near	 000000D4 _TEXT	
+  L8 . . . . . . . . . . . . . .	L Near	 000000FD _TEXT	
+  L9 . . . . . . . . . . . . . .	L Near	 00000108 _TEXT	
+  QUIT . . . . . . . . . . . . .	L Near	 00000117 _TEXT	
+moveSnakeDown  . . . . . . . . .	P Near	 00000244 _TEXT	Length= 00000066 Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 0000028B _TEXT	
+  TURN . . . . . . . . . . . . .	L Near	 0000029E _TEXT	
+  NOTURN . . . . . . . . . . . .	L Near	 000002A3 _TEXT	
+moveSnakeLeft  . . . . . . . . .	P Near	 000001DE _TEXT	Length= 00000066 Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 00000225 _TEXT	
+  TURN . . . . . . . . . . . . .	L Near	 00000238 _TEXT	
+  NOTURN . . . . . . . . . . . .	L Near	 0000023D _TEXT	
+moveSnakeRight . . . . . . . . .	P Near	 000002AA _TEXT	Length= 0000005D Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 000002E8 _TEXT	
+  TURN . . . . . . . . . . . . .	L Near	 000002FB _TEXT	
+  NOTURN . . . . . . . . . . . .	L Near	 00000300 _TEXT	
+moveSnakeUp  . . . . . . . . . .	P Near	 00000178 _TEXT	Length= 00000066 Public STDCALL
+  TOP  . . . . . . . . . . . . .	L Near	 000001BF _TEXT	
+  TURN . . . . . . . . . . . . .	L Near	 000001D2 _TEXT	
+  NOTURN . . . . . . . . . . . .	L Near	 000001D7 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-processKey . . . . . . . . . . .	P Near	 0000003B _TEXT	Length= 00000005 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 0000003F _TEXT	
+processKey . . . . . . . . . . .	P Near	 0000016A _TEXT	Length= 0000000E Public STDCALL
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
@@ -683,7 +790,7 @@ cyan . . . . . . . . . . . . . .	Number	 00000003h
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-keyPress . . . . . . . . . . . .	DWord	 0000026F _DATA	
+keyPress . . . . . . . . . . . .	Word	 0000026F _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   

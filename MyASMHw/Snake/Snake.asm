@@ -13,46 +13,108 @@ RCC ENDS
 .data
 snake     RCC       <0,37,'+'>,<0,38,'*'>,<0,39,'*'>,<0,40,1>, 202 DUP(<0,0,0>)
 currSize       BYTE            04h
-time           DWORD            500
-keyPress       DWORD           4D00h
+time           DWORD           500
+keyPress       WORD          4D00h
 .code
 
 
 main PROC
+
    call drawSnake
 TOP:
-     call ReadKey
-     jnz PRESS
-     jmp NEXT
-PRESS:
-     call processKey
-NEXT:
-     cmp keyPress, 4D00h
-     je RIGHT
-        
-     RIGHT:
-       
-       jnz QUIT 
-       call moveSnakeRight
-       mov eax, time
-       call delay
-       jmp RIGHT
-jmp TOP
+   call Readkey
+   jnz pressEvent
+	jmp L1
+
+pressEvent:
+	call processKey
+	
+L1:	cmp keyPress, 4D00h
+	jne L2
+	call moveSnakeRight
+	mov eax, time
+	call delay
+	jmp Top
+L2: cmp keyPress, 4B00h
+	jne L3
+	call moveSnakeLeft
+	mov eax, time
+	call delay
+	jmp TOP
+L3: cmp keyPress, 5000h
+	jne L4
+	call moveSnakeDown
+	mov eax, time
+	call delay
+	jmp TOP
+L4: cmp keyPress, 4800h
+	jne L5
+	call moveSnakeUp
+	mov eax, time
+	call delay
+	jmp TOP
+L5: cmp keyPress, 4E2Bh
+	jne L6
+	cmp time, 0
+	je NOLESS
+	sub time, 100
+NOLESS:
+	mov keypress, bx
+	jmp TOP
+L6: cmp keyPress, 4A2Dh
+	jne L7
+	cmp time, 1000
+	je NOMORE
+	add time, 100
+NOMORE:
+	mov keypress, bx
+	jmp TOP
+L7: cmp keyPress, 372Ah
+	jne L8
+	cmp currSize, 205
+	je Top
+	call growSnake
+	mov keypress, bx
+	jmp Top
+L8: cmp keyPress, 1051h
+	je QUIT
+L9: cmp keyPress, 1071h
+	jne TOP
+	
 QUIT:
+	
      exit
 main ENDP
-
+growSnake PROC
+pushad
+	 mov al, currSize
+     mov dl, sizeOF RCC
+     mul dl
+     sub ax, sizeOF RCC
+     movzx esi, ax
+	 mov bl, snake[esi].col
+	 mov bh, snake[esi].row
+	 mov dl, snake[esi].char
+	 mov snake[esi].char, '*'
+	 add esi, sizeOF RCC
+	 mov snake[esi].col,bl
+	 mov snake[esi].row,bh
+	 mov snake[esi].char, dl
+	 inc currSize
+	 call drawSnake 
+popad
+ ret
+growSnake ENDP
 processKey PROC
-     cmp al,0
-     je L1
-L1:
-     
-
+	mov bx, keypress
+	mov keypress, ax
+	
      RET
 ProcessKey ENDP
 moveSnakeUp PROC
      pushad
      call clrscr
+	 mov keyPress, 4800h
      mov al, currSize
      mov dl, sizeOF RCC
      mul dl
@@ -84,6 +146,7 @@ moveSnakeUp ENDP
 moveSnakeLeft PROC
      pushad
      call clrscr
+	 mov keyPress, 4B00h
      mov al, currSize
      mov dl, sizeOF RCC
      mul dl
@@ -106,7 +169,7 @@ TOP:
      loop Top
      jmp NOTURN
 TURN:
-     call moveSnakeLeft
+     call moveSnakeUp
 NOTURN:
  call drawSnake
      popad
@@ -115,6 +178,7 @@ moveSnakeLeft ENDP
 moveSnakeDown PROC
      pushad
      call clrscr
+	 mov keyPress, 5000h
      mov al, currSize
      mov dl, sizeOF RCC
      mul dl
